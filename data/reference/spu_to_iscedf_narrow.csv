@@ -1,0 +1,38 @@
+spu_disciplina,spu_rama,iscedf_narrow,iscedf_label,confianza,nota
+Arquitectura y Diseño,Ciencias Aplicadas,F073,Architecture and construction,media,"Arquitectura es claramente F073; Diseño (gráfico, industrial, indumentaria) en ISCED-F es 0212 → F021 (Arts). El agregado SPU está dominado por arquitectura, pero sobreestima F073."
+Astronomía,Ciencias Aplicadas,F053,Physical sciences,alta,"Astronomía es 0533 (física y astronomía) → F053."
+Bioquímica y Farmacia,Ciencias Aplicadas,F091,Health,media,"Farmacia es 0916 → F091. Bioquímica podría ir a 0512 → F051 (Biological sciences). Se prioriza el perfil profesional sanitario de ambas carreras en Argentina."
+Ciencias Agropecuarias,Ciencias Aplicadas,F081,Agriculture,alta,
+Ciencias del Suelo,Ciencias Aplicadas,F081,Agriculture,media,"Edafología: cercana a agronomía (F081) pero también a ciencias de la tierra (0532 → F053). Volumen chico; revisar si distorsiona."
+Estadística,Ciencias Aplicadas,F054,Mathematics and statistics,alta,
+Industrias,Ciencias Aplicadas,F072,Manufacturing and processing,baja,"Sin contraparte limpia: el agregado SPU mezcla ingeniería industrial (F071), procesamiento/producción (F072) y tecnología de alimentos (0721 → F072). Revisar contra planes de estudio antes de usar."
+Informática,Ciencias Aplicadas,F061,Information and communication technologies,alta,
+Ingeniería,Ciencias Aplicadas,F071,Engineering and engineering trades,alta,"El agregado SPU incluye especialidades que ISCED reparte entre F071, F072 y F073 (p. ej. ing. en construcciones), pero el grueso es F071."
+Meteorología,Ciencias Aplicadas,F053,Physical sciences,alta,"Ciencias de la atmósfera es 0532 (ciencias de la tierra) → F053."
+Otras Ciencias Aplicadas,Ciencias Aplicadas,F079,"Engineering, manufacturing and construction not elsewhere classified",baja,"Residual sin contraparte definida en ISCED-F; F079 es la aproximación residual menos mala pero puede contener programas de cualquier campo aplicado. Revisar composición real."
+Biología,Ciencias Básicas,F051,Biological and related sciences,alta,
+Física,Ciencias Básicas,F053,Physical sciences,alta,
+Matemática,Ciencias Básicas,F054,Mathematics and statistics,alta,
+Química,Ciencias Básicas,F053,Physical sciences,alta,"Química es 0531 → F053 (Physical sciences); no confundir con F051."
+Medicina,Ciencias de la Salud,F091,Health,alta,
+Odontología,Ciencias de la Salud,F091,Health,alta,"Odontología es 0911 → F091."
+Paramédicas y Auxiliares de la Medicina,Ciencias de la Salud,F091,Health,alta,"Enfermería (0913) y tecnicaturas médicas (0914) caen todas dentro de F091."
+Sanidad,Ciencias de la Salud,F102,Hygiene and occupational health services,baja,"Ambiguo: si el contenido es salud pública/saneamiento clínico correspondería F091; si es higiene y seguridad laboral, F102. Revisar qué carreras agrupa la SPU acá antes de usar."
+Veterinaria,Ciencias de la Salud,F084,Veterinary,alta,
+Arqueología,Ciencias Humanas,F022,Humanities (except languages),alta,"Historia y arqueología es 0222 → F022."
+Artes,Ciencias Humanas,F021,Arts,alta,
+Educación,Ciencias Humanas,F011,Education,alta,
+Filosofía,Ciencias Humanas,F022,Humanities (except languages),alta,"Filosofía y ética es 0223 → F022."
+Historia,Ciencias Humanas,F022,Humanities (except languages),alta,
+Letras e Idiomas,Ciencias Humanas,F023,Languages,alta,"Idiomas (0231) y literatura/lingüística (0232) caen ambas en F023."
+Psicología,Ciencias Humanas,F031,Social and behavioural sciences,alta,"Psicología es 0313 → F031. Notar que la SPU la clasifica en Humanas pero ISCED la ubica en ciencias sociales/comportamiento: la comparación por rama SPU vs broad ISCED no es 1 a 1."
+Teología,Ciencias Humanas,F022,Humanities (except languages),alta,"Religión y teología es 0221 → F022."
+Otras Ciencias Humanas,Ciencias Humanas,F029,Arts and humanities not elsewhere classified,baja,"Residual sin contraparte definida; F029 es el residual ISCED del campo 02 pero el contenido real puede exceder humanidades."
+Ciencias de la Información y de la Comunicación,Ciencias Sociales,F032,Journalism and information,media,"Periodismo (0321) y bibliotecología/archivos (0322) → F032; pero comunicación social en Argentina suele tener perfil de ciencia social (F031). Probable sobreestimación de F032."
+"Ciencias Políticas, Relaciones Internacionales y Diplomacia",Ciencias Sociales,F031,Social and behavioural sciences,alta,"Ciencia política es 0312 → F031."
+Demografía y Geografía,Ciencias Sociales,F031,Social and behavioural sciences,media,"Demografía y geografía humana son 0314 → F031; la geografía física correspondería a 0532 → F053."
+Derecho,Ciencias Sociales,F042,Law,alta,
+Economía y Administración,Ciencias Sociales,F041,Business and administration,media,"El agregado SPU mezcla economía (0311 → F031) con administración y contaduría (F041). En la matrícula argentina domina administración/contador; si se consigue apertura por carrera, separar."
+Relaciones Institucionales y Humanas,Ciencias Sociales,F041,Business and administration,baja,"Sin contraparte limpia: RRHH ≈ 0413 (gestión) y RRPP/publicidad ≈ 0414 (marketing), ambas F041, pero el agregado SPU es heterogéneo y puede incluir programas sociales (F031). Revisar."
+"Sociología, Antropología y Servicio Social",Ciencias Sociales,F031,Social and behavioural sciences,media,"Sociología y antropología son 0314 → F031, pero trabajo/servicio social es 0923 → F092 (Welfare). El agregado parte en dos campos ISCED; con datos por carrera conviene separar."
+Otras Ciencias Sociales,Ciencias Sociales,F039,"Social sciences, journalism and information not elsewhere classified",baja,"Residual sin contraparte definida; F039 es el residual ISCED del campo 03 pero el contenido real es incierto."
