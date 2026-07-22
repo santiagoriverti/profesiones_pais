@@ -1,0 +1,17 @@
+# Datos crudos e intermedios (se regeneran con src/eurostat_api.py)
+data/raw/
+data/interim/
+
+# Secretos
+.env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Jupyter
+*.ipynb_checkpoints
+.ipynb_checkpoints/
