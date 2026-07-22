@@ -70,6 +70,22 @@ eso el setup del notebook sincroniza con `fetch` + `reset --hard` (nunca
 `scripts/make_notebook.py` (correr `python scripts/make_notebook.py`) y se
 valida ejecutándolo end-to-end con nbclient antes de commitear.
 
+## 2026-07-22 — Capa de reporte (src/report.py) y export
+
+- Todos los gráficos del informe se generan a 600 dpi en `output/`
+  (gitignoreado: son regenerables y pesados). El ZIP
+  `output/profesiones_pais_export.zip` junta gráficos + Excel; en Colab
+  se descarga automáticamente al final del notebook.
+- Un scatter de desarrollo por cada campo narrow con datos en ≥8 países
+  (~50 gráficos en `graficos/por_campo/`); inline solo se muestran F061,
+  F071 y F091 para no saturar el notebook.
+- Etiquetas de campos en `data/reference/iscedf_narrow_labels.csv`
+  (57 códigos, ES + EN); el Excel las incluye como hoja `codigos_iscedf`
+  junto con la hoja `diccionario` (definición y fuente de cada variable,
+  generada por `build_panel.data_dictionary()`).
+- `report.variable_summary()` imprime el resumen de todas las variables
+  (n, faltantes, min/mediana/media/max) para pegar en el informe.
+
 ## Lecciones técnicas
 
 - `.iloc[-1]` sobre una selección posiblemente vacía → guard

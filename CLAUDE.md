@@ -16,7 +16,8 @@ desarrollo, 2014 en adelante. Europa vía Eurostat + Argentina vía SPU.
 | `src/spu_data.py` | Lee `data/external/profesiones_arg.xlsx` y mapea niveles SPU → ISCED |
 | `src/crosswalk.py` | Aplica `data/reference/spu_to_iscedf_narrow.csv` (38 disciplinas) |
 | `src/indicators.py` | Población y PIB pc (Banco Mundial) + IDH (PNUD HDR) |
-| `src/build_panel.py` | **Entry point**: consolida todo y exporta `data/processed/dataset.xlsx` |
+| `src/build_panel.py` | **Entry point**: consolida todo y exporta `data/processed/dataset.xlsx` (7 hojas, incluye `diccionario` y `codigos_iscedf`) |
+| `src/report.py` | Gráficos del informe (600 dpi → `output/`, gitignoreado), resumen de variables y ZIP exportable |
 
 Correr: `python src/build_panel.py` (usa cache; no re-descarga).
 Tests: `python -m pytest tests/ -q` (sin red). Notebook Colab:

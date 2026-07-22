@@ -43,7 +43,8 @@ profesiones_pais/
 │   ├── crosswalk.py          # mapeo SPU -> ISCED-F narrow (Argentina)
 │   ├── spu_data.py           # carga del Excel SPU y mapeo de niveles a ISCED
 │   ├── indicators.py         # población, PIB pc (USD/PPA) e IDH por país-año
-│   └── build_panel.py        # consolidación, cobertura y export a Excel
+│   ├── build_panel.py        # consolidación, cobertura y export a Excel
+│   └── report.py             # gráficos 600 dpi, resumen de variables y ZIP
 ├── data/
 │   ├── raw/                  # descargas crudas con timestamp (gitignored)
 │   ├── reference/            # crosswalks versionados (SÍ commiteados)
@@ -72,7 +73,15 @@ Salidas en `data/processed/`:
 - `coverage.csv` — qué países tienen datos a nivel narrow y cuáles solo broad
 - **`dataset.xlsx`** — todo el dataset procesado en un solo Excel, con hojas
   `panel`, `indicadores`, `panel_indicadores` (incluye egresados cada mil
-  habitantes), `cobertura` y `crosswalk_spu`
+  habitantes), `cobertura`, `crosswalk_spu`, `codigos_iscedf` (etiquetas
+  ES/EN de cada campo) y `diccionario` (definición y fuente de cada variable)
+
+El notebook además genera `output/` (gitignoreado, vía `src/report.py`):
+todos los gráficos a **600 dpi** — incluyendo la evolución de cada campo en
+Argentina cada mil habitantes y un scatter de desarrollo por cada campo de
+estudio en `graficos/por_campo/` —, una copia del Excel, y el ZIP
+`profesiones_pais_export.zip` (en Colab se descarga solo). También imprime
+un resumen de todas las variables listo para pegar en un informe.
 
 **Argentina** entra automáticamente: `build_panel.py` lee
 `data/external/profesiones_arg.xlsx` (egresados SPU 2014-2023), mapea los

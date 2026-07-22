@@ -134,17 +134,13 @@ ind[ind["iso3"] == "ARG"].tail()"""))
 
 cells.append(md("""## Gráficos exploratorios
 
-Argentina resaltada en todos: composición por campo, egresados cada mil
-habitantes contra PIB per cápita (PPA) y contra IDH, y evolución del share
-de TIC."""))
+Argentina resaltada en todos. Cada gráfico se guarda además en
+`output/graficos/` a **600 dpi** para el informe (los scatters por campo
+tardan unos minutos por la calidad de exportación)."""))
 
 cells.append(code("""import matplotlib.pyplot as plt
-
-# Paleta categórica en orden fijo (validada para visión de color)
-PALETA = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100",
-          "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
-COLOR_ARG = "#eb6834"   # naranja: Argentina resaltada
-COLOR_RESTO = "#9aa0a6"
+from report import (PALETA, fig_argentina_evolucion, fig_scatter_total,
+                    save_fig, save_field_scatters)
 
 BROAD_LABELS = {
     "F00": "Genéricos", "F01": "Educación", "F02": "Artes y humanidades",
@@ -154,7 +150,7 @@ BROAD_LABELS = {
     "F09": "Salud y bienestar", "F10": "Servicios",
 }
 
-# --- Composición de egresados de grado (ED6) por campo broad ---
+# --- 01: Composición de egresados de grado (ED6) por campo broad ---
 paises = ["ARG", "DEU", "ESP", "FRA", "ITA", "POL", "SWE"]
 ed6 = panel[(panel["isced_level"] == "ED6") & panel["iso3"].isin(paises)]
 anio = int(ed6.groupby("iso3")["year"].max().min())  # último año con datos en todos
@@ -183,49 +179,28 @@ for s in ("top", "right", "left"):
 ax.xaxis.grid(True, color="#e6e6e6", linewidth=0.8)
 ax.set_axisbelow(True)
 plt.tight_layout()
+save_fig(fig, "01_composicion_campos")
 plt.show()"""))
 
-cells.append(code("""# --- Egresados cada mil habitantes vs PIB per cápita (PPA) y vs IDH ---
+cells.append(code("""# --- 02: Egresados cada mil habitantes vs PIB pc (PPA) y vs IDH ---
 anio_ref = int(panel[panel["iso3"] == "ARG"]["year"].max())
-tot = (panel[panel["year"] == anio_ref]
-       .groupby("iso3")["graduates"].sum().rename("egresados"))
-datos = tot.to_frame().join(
-    ind[ind["year"] == anio_ref].set_index("iso3"), how="left")
-datos["grad_1000"] = datos["egresados"] / datos["population"] * 1000
-destacados = ["ARG", "DEU", "ESP", "FRA", "ITA", "POL", "SWE", "TUR", "LUX"]
-
-fig, axes = plt.subplots(1, 2, figsize=(12, 4.8), sharey=True)
-for ax, xvar, xlabel, logx in [
-    (axes[0], "gdp_pc_ppp", "PIB per cápita, PPA ($ internacionales, eje log)", True),
-    (axes[1], "hdi", "Índice de Desarrollo Humano", False),
-]:
-    sub = datos.dropna(subset=[xvar, "grad_1000"])
-    resto = sub.drop(index="ARG", errors="ignore")
-    ax.scatter(resto[xvar], resto["grad_1000"], s=38, color=COLOR_RESTO,
-               alpha=0.75, edgecolor="white", linewidth=1)
-    if "ARG" in sub.index:
-        ax.scatter(sub.loc["ARG", xvar], sub.loc["ARG", "grad_1000"], s=110,
-                   color=COLOR_ARG, edgecolor="white", linewidth=1.5, zorder=3)
-    for iso in destacados:
-        if iso in sub.index:
-            ax.annotate(iso, (sub.loc[iso, xvar], sub.loc[iso, "grad_1000"]),
-                        xytext=(5, 4), textcoords="offset points", fontsize=8,
-                        color="#333333",
-                        fontweight="bold" if iso == "ARG" else "normal")
-    if logx:
-        ax.set_xscale("log")
-    ax.set_xlabel(xlabel, fontsize=9)
-    for s in ("top", "right"):
-        ax.spines[s].set_visible(False)
-    ax.grid(True, color="#e6e6e6", linewidth=0.8)
-    ax.set_axisbelow(True)
-axes[0].set_ylabel("Egresados ED6-ED8 cada mil habitantes")
-fig.suptitle(f"Egresados de educación superior vs desarrollo, {anio_ref}",
-             x=0.01, ha="left", fontsize=12)
-plt.tight_layout()
+fig = fig_scatter_total(panel, ind, anio_ref)
+save_fig(fig, "02_egresados_vs_desarrollo")
 plt.show()"""))
 
-cells.append(code("""# --- Evolución del share de egresados TIC (F061) en el grado (ED6) ---
+cells.append(code("""# --- 03: Argentina, evolución de cada campo cada mil habitantes ---
+fig = fig_argentina_evolucion(panel, ind)
+save_fig(fig, "03_argentina_evolucion_campos")
+plt.show()"""))
+
+cells.append(code("""# --- 04: Un scatter de desarrollo por cada campo de estudio ---
+# Todos se guardan en output/graficos/por_campo/ (600 dpi); acá se
+# muestran tres ejemplos (TIC, Ingeniería y Salud).
+campos = save_field_scatters(panel, ind, anio_ref,
+                             show=("F061", "F071", "F091"))
+print(f"{len(campos)} gráficos por campo guardados en output/graficos/por_campo/")"""))
+
+cells.append(code("""# --- 05: Evolución del share de egresados TIC (F061) en el grado (ED6) ---
 foco = ["ARG", "DEU", "ESP", "FRA", "ITA"]
 ed6_all = panel[panel["isced_level"] == "ED6"]
 tot_y = ed6_all.groupby(["iso3", "year"])["graduates"].sum()
@@ -253,20 +228,42 @@ for s_ in ("top", "right"):
 ax.yaxis.grid(True, color="#e6e6e6", linewidth=0.8)
 ax.set_axisbelow(True)
 plt.tight_layout()
+save_fig(fig, "05_share_tic")
 plt.show()"""))
+
+cells.append(md("""## Resumen de variables (para el informe)
+
+Definición y estadísticos de cada variable del dataset consolidado."""))
+
+cells.append(code("""from report import variable_summary
+
+print(variable_summary(panel, ind))"""))
+
+cells.append(md("""## Export final
+
+Arma `output/` con todos los gráficos (600 dpi) y el Excel completo
+(`dataset.xlsx`, que incluye las hojas `diccionario` y `codigos_iscedf`),
+lo comprime en un ZIP y —en Colab— lo descarga automáticamente."""))
+
+cells.append(code("""from report import export_zip
+
+zip_path = export_zip()
+print("Export listo:", zip_path)
+if IN_COLAB:
+    from google.colab import files
+    files.download(str(zip_path))"""))
 
 cells.append(md("""## Salidas
 
-- `data/processed/panel.parquet` — panel `iso3, year, isced_level, iscedf_narrow, graduates, source`
-- `data/processed/indicators.parquet` — población, PIB per cápita (USD y PPA) e IDH por país-año
-- `data/processed/coverage.csv` — cobertura narrow vs broad por país (Eurostat)
-- **`data/processed/dataset.xlsx`** — todo el dataset procesado en un solo Excel
-
-En Colab, descargá el Excel desde el panel de archivos (izquierda) o con:
-`from google.colab import files; files.download("data/processed/dataset.xlsx")`
+- `data/processed/dataset.xlsx` — dataset completo: hojas `panel`,
+  `indicadores`, `panel_indicadores` (egresados cada mil habitantes),
+  `cobertura`, `crosswalk_spu`, `codigos_iscedf` y **`diccionario`**
+- `data/processed/*.parquet` y `coverage.csv` — versiones para análisis
+- `output/profesiones_pais_export.zip` — gráficos 600 dpi + Excel, listo
+  para el informe
 
 **Próximos pasos:** modelar la relación composición de egresados ↔ desarrollo
-(los scatters de arriba son descriptivos, no causales)."""))
+(los scatters son descriptivos, no causales)."""))
 
 nb = {
     "cells": cells,

@@ -2,6 +2,9 @@
 data/raw/
 data/interim/
 
+# Exportes regenerables (gráficos 600 dpi + ZIP)
+output/
+
 # Secretos
 .env
 

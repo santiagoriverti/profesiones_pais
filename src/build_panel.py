@@ -56,6 +56,51 @@ ISO2_TO_ISO3 = {
 }
 
 
+def data_dictionary() -> pd.DataFrame:
+    """Diccionario de variables del dataset (hoja `diccionario` del Excel)."""
+    filas = [
+        ("panel", "iso3", "Código de país ISO 3166-1 alpha-3 (ARG = Argentina)", ""),
+        ("panel", "year", "Año calendario", ""),
+        ("panel", "isced_level",
+         "Nivel ISCED 2011: ED6 grado/licenciatura; ED7 maestría o equivalente "
+         "(en Argentina incluye especializaciones de posgrado); ED8 doctorado", ""),
+        ("panel", "iscedf_narrow",
+         "Campo de estudio ISCED-F 2013 nivel narrow (F + 3 dígitos); "
+         "etiquetas en la hoja codigos_iscedf", ""),
+        ("panel", "graduates", "Egresados (personas) en el año",
+         "Eurostat educ_uoe_grad02 (unit=NR) / SPU Argentina"),
+        ("panel", "source",
+         "Origen de la fila: eurostat_educ_uoe_grad02 o spu_crosswalk", ""),
+        ("indicadores", "population", "Población total",
+         "Banco Mundial SP.POP.TOTL"),
+        ("indicadores", "gdp_pc_usd", "PIB per cápita en USD corrientes",
+         "Banco Mundial NY.GDP.PCAP.CD"),
+        ("indicadores", "gdp_pc_ppp",
+         "PIB per cápita en PPA ($ internacionales corrientes)",
+         "Banco Mundial NY.GDP.PCAP.PP.CD"),
+        ("indicadores", "hdi",
+         "Índice de Desarrollo Humano (0-1); disponible hasta 2023",
+         "PNUD, Human Development Report 2025"),
+        ("panel_indicadores", "grad_per_1000",
+         "Egresados cada mil habitantes: graduates / population * 1000",
+         "elaboración propia"),
+        ("cobertura", "celdas_narrow",
+         "Celdas campo-nivel-año con dato a nivel narrow (Eurostat)", ""),
+        ("cobertura", "celdas_broad",
+         "Celdas campo-nivel-año con dato a nivel broad (Eurostat)", ""),
+        ("cobertura", "cobertura",
+         "narrow = entra a la muestra; solo_broad = sin apertura narrow", ""),
+        ("crosswalk_spu", "spu_disciplina",
+         "Disciplina de la SPU (Síntesis de Información Universitaria)", ""),
+        ("crosswalk_spu", "confianza",
+         "Calidad del mapeo SPU→ISCED-F: alta / media / baja "
+         "(baja requiere revisión manual; ver columna nota)", ""),
+    ]
+    return pd.DataFrame(
+        filas, columns=["hoja", "variable", "definicion", "fuente"]
+    )
+
+
 def build_eurostat_panel(force: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Descarga grad02 y devuelve (panel_narrow, coverage)."""
     df = fetch_graduates(force=force)
@@ -150,6 +195,9 @@ def main(force: bool = False) -> pd.DataFrame:
     indicadores.to_parquet(PROCESSED_DIR / "indicators.parquet", index=False)
     coverage.to_csv(PROCESSED_DIR / "coverage.csv", index=False)
 
+    labels = pd.read_csv(
+        PROJECT_ROOT / "data" / "reference" / "iscedf_narrow_labels.csv"
+    )
     xlsx = PROCESSED_DIR / "dataset.xlsx"
     with pd.ExcelWriter(xlsx, engine="openpyxl") as writer:
         panel.to_excel(writer, sheet_name="panel", index=False)
@@ -157,6 +205,8 @@ def main(force: bool = False) -> pd.DataFrame:
         panel_ind.to_excel(writer, sheet_name="panel_indicadores", index=False)
         coverage.to_excel(writer, sheet_name="cobertura", index=False)
         load_crosswalk().to_excel(writer, sheet_name="crosswalk_spu", index=False)
+        labels.to_excel(writer, sheet_name="codigos_iscedf", index=False)
+        data_dictionary().to_excel(writer, sheet_name="diccionario", index=False)
 
     narrow = coverage[coverage["cobertura"] == "narrow"]["iso3"].tolist()
     solo_broad = coverage[coverage["cobertura"] == "solo_broad"]["iso3"].tolist()
