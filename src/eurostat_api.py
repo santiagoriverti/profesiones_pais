@@ -70,7 +70,8 @@ DATASET_DIMS = {
 
 # Niveles ISCED 2011 de interés: grado, maestría, doctorado.
 ISCED_LEVELS = ("ED6", "ED7", "ED8")
-START_YEAR = 2013
+# Desde 2014 para alinear con la serie SPU argentina (2014-2023).
+START_YEAR = 2014
 
 BROAD_RE = re.compile(r"^F\d{2}$")
 NARROW_RE = re.compile(r"^F\d{3}$")

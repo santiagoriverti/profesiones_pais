@@ -1,7 +1,12 @@
 """Consolidación del panel de graduados por campo ISCED-F narrow.
 
-Salida: ``data/processed/panel.parquet`` con esquema
-    iso3, year, isced_level, iscedf_narrow, graduates, source
+Salidas en ``data/processed/``:
+- ``panel.parquet``: iso3, year, isced_level, iscedf_narrow, graduates, source
+- ``indicators.parquet``: iso3, year, population, gdp_pc_usd, gdp_pc_ppp, hdi
+- ``coverage.csv``: cobertura narrow vs broad por país (Eurostat)
+- ``dataset.xlsx``: todo lo anterior en un solo Excel (hojas: panel,
+  indicadores, panel_indicadores con egresados cada mil habitantes,
+  cobertura y crosswalk)
 
 Fuentes:
 - Eurostat ``educ_uoe_grad02`` (unit=NR, conteos absolutos) para los
@@ -26,6 +31,7 @@ import pandas as pd
 
 from crosswalk import apply_crosswalk, load_crosswalk
 from eurostat_api import fetch_graduates, is_broad, is_narrow
+from indicators import build_indicators
 from spu_data import SPU_XLSX, load_spu_egresados
 
 logger = logging.getLogger(__name__)
@@ -127,13 +133,36 @@ def main(force: bool = False) -> pd.DataFrame:
             f"anios {panel_arg['year'].min()}-{panel_arg['year'].max()}"
         )
 
+    # Indicadores de desarrollo para todos los países del panel
+    indicadores = build_indicators(
+        sorted(panel["iso3"].unique()),
+        int(panel["year"].min()), int(panel["year"].max()),
+    )
+
+    # Panel + indicadores, con egresados cada mil habitantes
+    panel_ind = panel.merge(indicadores, on=["iso3", "year"], how="left")
+    panel_ind["grad_per_1000"] = (
+        panel_ind["graduates"] / panel_ind["population"] * 1000
+    )
+
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     panel.to_parquet(PROCESSED_DIR / "panel.parquet", index=False)
+    indicadores.to_parquet(PROCESSED_DIR / "indicators.parquet", index=False)
     coverage.to_csv(PROCESSED_DIR / "coverage.csv", index=False)
+
+    xlsx = PROCESSED_DIR / "dataset.xlsx"
+    with pd.ExcelWriter(xlsx, engine="openpyxl") as writer:
+        panel.to_excel(writer, sheet_name="panel", index=False)
+        indicadores.to_excel(writer, sheet_name="indicadores", index=False)
+        panel_ind.to_excel(writer, sheet_name="panel_indicadores", index=False)
+        coverage.to_excel(writer, sheet_name="cobertura", index=False)
+        load_crosswalk().to_excel(writer, sheet_name="crosswalk_spu", index=False)
 
     narrow = coverage[coverage["cobertura"] == "narrow"]["iso3"].tolist()
     solo_broad = coverage[coverage["cobertura"] == "solo_broad"]["iso3"].tolist()
     print(f"\nPanel: {len(panel):,} filas -> {PROCESSED_DIR / 'panel.parquet'}")
+    print(f"Indicadores: {len(indicadores):,} filas pais-anio -> indicators.parquet")
+    print(f"Dataset completo -> {xlsx}")
     print(f"Países con datos a nivel narrow ({len(narrow)}): {', '.join(narrow)}")
     print(f"Países solo a nivel broad ({len(solo_broad)}): {', '.join(solo_broad) or '—'}")
     print("La muestra final del análisis son los países con cobertura narrow.")
