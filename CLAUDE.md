@@ -1,0 +1,56 @@
+# profesiones_pais — contexto del proyecto
+
+Panel comparativo de egresados de educación superior por campo de estudio
+(ISCED-F 2013 nivel *narrow*, códigos `F` + 3 dígitos) e indicadores de
+desarrollo, 2014 en adelante. Europa vía Eurostat + Argentina vía SPU.
+
+**Memoria detallada**: [docs/fuentes_datos.md](docs/fuentes_datos.md)
+(estructura verificada de cada fuente) y
+[docs/decisiones.md](docs/decisiones.md) (registro de decisiones).
+
+## Arquitectura
+
+| Archivo | Rol |
+|---|---|
+| `src/eurostat_api.py` | Descarga SDMX 2.1 con cache timestampeado en `data/raw/` |
+| `src/spu_data.py` | Lee `data/external/profesiones_arg.xlsx` y mapea niveles SPU → ISCED |
+| `src/crosswalk.py` | Aplica `data/reference/spu_to_iscedf_narrow.csv` (38 disciplinas) |
+| `src/indicators.py` | Población y PIB pc (Banco Mundial) + IDH (PNUD HDR) |
+| `src/build_panel.py` | **Entry point**: consolida todo y exporta `data/processed/dataset.xlsx` |
+
+Correr: `python src/build_panel.py` (usa cache; no re-descarga).
+Tests: `python -m pytest tests/ -q` (sin red). Notebook Colab:
+`notebooks/01_descarga_y_panel.ipynb` — NO editarlo a mano, se regenera
+con `python scripts/make_notebook.py` y se valida con nbclient.
+
+## Gotchas críticos (no re-descubrir)
+
+- `educ_uoe_grad10` viene SOLO en `unit=PC` y es la **distribución por sexo
+  dentro de cada campo** (rechaza `sex=T`). NO sirve para composición por
+  campo. La fuente primaria es `educ_uoe_grad02` (`unit=NR`, absolutos).
+- El **orden de dimensiones difiere** entre datasets de Eurostat
+  (grad02: `freq.unit.isced11.iscedf13.sex.geo`;
+  grad10: `freq.sex.isced11.iscedf13.unit.geo`).
+- El endpoint de estructura exige `references=descendants` (no acepta `all`).
+- Consolas Windows (cp1252): no imprimir `→` ni caracteres no-ASCII en
+  scripts; usar `python -X utf8` si hace falta.
+- El notebook en Colab sincroniza el clon con `git fetch` + `reset --hard
+  origin/main` (un `pull` falla porque las corridas modifican
+  `data/processed/`, que está trackeado) y purga los módulos del proyecto
+  de `sys.modules` (runtimes reutilizados cachean código viejo).
+- `data/processed/` está trackeado a propósito (outputs versionados);
+  `data/raw/` es cache gitignoreado.
+
+## Estado y pendientes
+
+- Panel: 64.650 filas, 39 países (38 Eurostat narrow + ARG), 2014-2024.
+  Georgia solo reporta nivel broad (fuera de la muestra narrow).
+- Pendiente: revisión manual de los 5 mapeos `confianza=baja` del
+  crosswalk; modelado egresados ↔ desarrollo (los scatters son
+  descriptivos).
+
+## Reglas del repo
+
+- Commits sin atribución de Claude, solo usuario Santiago Riverti.
+- No hardcodear tokens/credenciales; auth de GitHub vía Git Credential
+  Manager o `gh auth login`.
