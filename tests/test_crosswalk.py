@@ -15,7 +15,7 @@ CASOS_BAJA_ESPERADOS = {
 
 def test_crosswalk_valido_y_completo():
     cw = load_crosswalk()  # load_crosswalk ya valida códigos, ramas, etc.
-    assert len(cw) == 37
+    assert len(cw) == 38
     assert cw["spu_rama"].nunique() == 5
 
 

@@ -6,9 +6,11 @@ Salida: ``data/processed/panel.parquet`` con esquema
 Fuentes:
 - Eurostat ``educ_uoe_grad02`` (unit=NR, conteos absolutos) para los
   países que reportan a la UOE (UE + EFTA + candidatos + algunos más).
-- Argentina (opcional): si existe ``data/raw/spu_egresados.csv`` con
-  columnas [spu_disciplina, year, isced_level, graduates], se convierte
-  con el crosswalk SPU → ISCED-F y se agrega con source="spu_crosswalk".
+- Argentina: ``data/external/profesiones_arg.xlsx`` (Síntesis SPU,
+  egresados 2014-2023 por disciplina) se convierte con el crosswalk
+  SPU → ISCED-F y se agrega con source="spu_crosswalk". Como fallback
+  se acepta ``data/raw/spu_egresados.csv`` con columnas
+  [spu_disciplina, year, isced_level, graduates].
 
 Además reporta cobertura por país (¿tiene datos a nivel narrow o solo a
 nivel broad?) en ``data/processed/coverage.csv``: eso define la muestra
@@ -24,6 +26,7 @@ import pandas as pd
 
 from crosswalk import apply_crosswalk, load_crosswalk
 from eurostat_api import fetch_graduates, is_broad, is_narrow
+from spu_data import SPU_XLSX, load_spu_egresados
 
 logger = logging.getLogger(__name__)
 
@@ -89,15 +92,21 @@ def build_eurostat_panel(force: bool = False) -> tuple[pd.DataFrame, pd.DataFram
 def build_argentina_panel() -> pd.DataFrame | None:
     """Panel de Argentina vía crosswalk SPU, si hay datos disponibles.
 
-    Los datos de la SPU no tienen API: hay que bajar el Excel de la
-    Síntesis de Información Universitaria y guardarlo como
-    ``data/raw/spu_egresados.csv`` (columnas: spu_disciplina, year,
-    isced_level, graduates). Si el archivo no está, devuelve None.
+    Fuente primaria: ``data/external/profesiones_arg.xlsx`` (Síntesis
+    SPU). Fallback: ``data/raw/spu_egresados.csv`` ya en formato tidy
+    (columnas: spu_disciplina, year, isced_level, graduates). Si no hay
+    ninguno, devuelve None.
     """
-    if not SPU_INPUT.exists():
-        logger.info("No hay %s; el panel sale sin Argentina.", SPU_INPUT.name)
+    if SPU_XLSX.exists():
+        df_spu = load_spu_egresados()
+    elif SPU_INPUT.exists():
+        df_spu = pd.read_csv(SPU_INPUT)
+    else:
+        logger.info(
+            "No hay %s ni %s; el panel sale sin Argentina.",
+            SPU_XLSX.name, SPU_INPUT.name,
+        )
         return None
-    df_spu = pd.read_csv(SPU_INPUT)
     panel_arg = apply_crosswalk(df_spu, load_crosswalk())
     panel_arg["iso3"] = "ARG"
     panel_arg["source"] = "spu_crosswalk"
@@ -113,6 +122,10 @@ def main(force: bool = False) -> pd.DataFrame:
     panel_arg = build_argentina_panel()
     if panel_arg is not None:
         panel = pd.concat([panel, panel_arg], ignore_index=True)
+        print(
+            f"Argentina via crosswalk SPU: {len(panel_arg):,} filas, "
+            f"anios {panel_arg['year'].min()}-{panel_arg['year'].max()}"
+        )
 
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     panel.to_parquet(PROCESSED_DIR / "panel.parquet", index=False)

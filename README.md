@@ -17,7 +17,7 @@ desde 2013.
 |---|---|---|
 | [Eurostat — educ_uoe_grad02](https://ec.europa.eu/eurostat/databrowser/product/view/educ_uoe_grad02) | Graduates by education level, programme orientation, sex and field of education | **Primaria**: conteos absolutos (`unit=NR`) por campo narrow |
 | [Eurostat — educ_uoe_grad10](https://ec.europa.eu/eurostat/databrowser/product/view/educ_uoe_grad10) | Distribution of male and female graduates | Complemento opcional: viene solo en `unit=PC` y es la **distribución por sexo dentro de cada campo** (no la composición por campo) |
-| [SPU — Síntesis de Información Universitaria](https://www.argentina.gob.ar/educacion/universidades/informacion/publicaciones/sintesis) | Egresados por disciplina (Argentina) | Se incorpora vía crosswalk SPU → ISCED-F |
+| [SPU — Síntesis de Información Universitaria](https://www.argentina.gob.ar/educacion/universidades/informacion/publicaciones/sintesis) | Egresados por disciplina (Argentina, 2014-2023) | `data/external/profesiones_arg.xlsx`, se incorpora vía crosswalk SPU → ISCED-F |
 
 El acceso a Eurostat es por la [API SDMX 2.1 de diseminación](https://wikis.ec.europa.eu/display/EUROSTATHELP/API+SDMX+2.1+-+data+query).
 La estructura de ambos datasets (orden de dimensiones, unidades, códigos)
@@ -37,10 +37,12 @@ profesiones_pais/
 ├── src/
 │   ├── eurostat_api.py       # descarga SDMX + cache en data/raw/
 │   ├── crosswalk.py          # mapeo SPU -> ISCED-F narrow (Argentina)
+│   ├── spu_data.py           # carga del Excel SPU y mapeo de niveles a ISCED
 │   └── build_panel.py        # consolidación del panel + reporte de cobertura
 ├── data/
 │   ├── raw/                  # descargas crudas con timestamp (gitignored)
 │   ├── reference/            # crosswalks versionados (SÍ commiteados)
+│   ├── external/             # datos fuente sin API (Excel SPU, commiteado)
 │   └── processed/            # panel.parquet + coverage.csv
 ├── notebooks/
 │   └── 01_descarga_y_panel.ipynb   # pipeline end-to-end, corre en Colab
@@ -63,9 +65,11 @@ Salidas en `data/processed/`:
 - `panel.parquet` — esquema `iso3, year, isced_level, iscedf_narrow, graduates, source`
 - `coverage.csv` — qué países tienen datos a nivel narrow y cuáles solo broad
 
-Para incorporar **Argentina**: guardar los egresados de la Síntesis SPU como
-`data/raw/spu_egresados.csv` (columnas `spu_disciplina, year, isced_level,
-graduates`) y re-correr `build_panel.py`; el crosswalk se aplica solo.
+**Argentina** entra automáticamente: `build_panel.py` lee
+`data/external/profesiones_arg.xlsx` (egresados SPU 2014-2023), mapea los
+niveles (Grado → ED6; Maestría y Especialidad → ED7; Doctorado → ED8) y
+aplica el crosswalk. Pregrado (ISCED 5) y "Posgrado/Otros" quedan fuera
+del panel y se reportan en el log.
 
 ## Limitaciones conocidas
 
@@ -82,6 +86,12 @@ graduates`) y re-correr `build_panel.py`; el crosswalk se aplica solo.
   (cada duda está documentada en la columna `nota`). Además hay agregados que
   ISCED parte en dos campos (p. ej. "Economía y Administración" mezcla F031 y
   F041; "Sociología, Antropología y Servicio Social" mezcla F031 y F092).
+- **Argentina — niveles ISCED**: las especializaciones de posgrado se mapean
+  a ED7 junto con las maestrías (criterio del mapeo UNESCO para Argentina);
+  si se prefiere una definición estricta de maestría, usar
+  `load_spu_egresados(include_especialidad=False)`. La serie argentina
+  arranca en 2014 (Eurostat en 2013) y "Posgrado/Otros" (~10,7 mil egresados
+  acumulados) no puede asignarse a nivel y queda excluido.
 - **Comparabilidad**: los totales nacionales pueden diferir de publicaciones
   locales por diferencias de cobertura institucional y de año académico
   vs. calendario. Las series con flag de ruptura o estimación conservan el
