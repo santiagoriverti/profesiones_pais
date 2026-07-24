@@ -168,9 +168,7 @@ plot_df["Otros"] = shares.drop(columns=top).sum(axis=1)
 fig, ax = plt.subplots(figsize=(10, 4.5))
 plot_df.plot(kind="barh", stacked=True, color=PALETA, width=0.65, ax=ax,
              edgecolor="white", linewidth=1.5)
-ax.set_title(f"Composición de egresados de grado por campo de estudio, {anio}",
-             loc="left", fontsize=12)
-ax.set_xlabel("% de egresados (ED6)")
+ax.set_xlabel("% de egresados")
 ax.set_ylabel("")
 ax.set_xlim(0, 100)
 ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left", frameon=False, fontsize=8)
@@ -230,6 +228,25 @@ ax.set_axisbelow(True)
 plt.tight_layout()
 save_fig(fig, "05_share_tic")
 plt.show()"""))
+
+cells.append(md("""## Ranking — orientación humanística/social vs. científico-técnica
+
+¿Cuántos egresados de perfil humanístico hay por cada egresado de perfil
+científico-técnico en cada país? ISCED-F *narrow* no aísla Psicología (cae en
+F031, ciencias sociales), así que a nivel comparativo se usa una razón entre
+campos *broad*: **humanidades y ciencias sociales** (F02 + F03, incluye
+Psicología) sobre **ciencias duras, tecnología e ingeniería** (F05 + F06 +
+F07). Ratio > 1 = predominio humanístico/social; < 1 = predominio
+científico-técnico. Argentina resaltada; la línea punteada marca la paridad (1)."""))
+
+cells.append(code("""from report import tabla_ratio_orientacion, fig_ranking_ratio
+
+rank = tabla_ratio_orientacion(panel, anio_ref)
+save_fig(fig_ranking_ratio(rank, anio_ref), "06_ranking_orientacion")
+plt.show()
+print(f"Ranking {anio_ref}: {len(rank)} países | ARG en el puesto "
+      f"{int(rank.loc[rank['iso3'] == 'ARG', 'ranking'].iloc[0])}")
+rank"""))
 
 cells.append(md("""## Resumen de variables (para el informe)
 

@@ -143,23 +143,39 @@ def _scatter_desarrollo(datos: pd.DataFrame, titulo: str, ylabel: str,
         ax.grid(True, color="#e6e6e6", linewidth=0.8)
         ax.set_axisbelow(True)
     axes[0].set_ylabel(ylabel)
-    fig.suptitle(titulo, x=0.01, ha="left", fontsize=12)
+    if titulo:                       # título opcional (los scatters por campo lo usan)
+        fig.suptitle(titulo, x=0.01, ha="left", fontsize=12)
     fig.tight_layout()
     return fig
 
 
+def _destacados_extremos(datos: pd.DataFrame, n_extremos: int = 6,
+                         n_intermedios: int = 6) -> tuple[str, ...]:
+    """Selecciona países a etiquetar: extremos por egresados/mil + intermedios.
+
+    Toma los ``n_extremos`` de arriba y de abajo del eje y (grad_1000) más una
+    muestra espaciada de intermedios, y siempre incluye Argentina.
+    """
+    orden = datos.dropna(subset=["grad_1000"]).sort_values("grad_1000")
+    iso = orden.index.tolist()
+    sel = set(iso[:n_extremos]) | set(iso[-n_extremos:]) | {"ARG"}
+    medio = iso[n_extremos:-n_extremos] if len(iso) > 2 * n_extremos else []
+    if medio and n_intermedios:
+        paso = max(1, len(medio) // n_intermedios)
+        sel |= set(medio[::paso])
+    return tuple(sel)
+
+
 def fig_scatter_total(panel: pd.DataFrame, ind: pd.DataFrame, anio_ref: int):
-    """Scatter de desarrollo para el total de egresados ED6-ED8."""
+    """Scatter de desarrollo para el total de egresados universitarios."""
     tot = (panel[panel["year"] == anio_ref]
            .groupby("iso3")["graduates"].sum().rename("egresados"))
     datos = tot.to_frame().join(
         ind[ind["year"] == anio_ref].set_index("iso3"), how="left")
     datos["grad_1000"] = datos["egresados"] / datos["population"] * 1000
     return _scatter_desarrollo(
-        datos,
-        f"Egresados de educación superior vs desarrollo, {anio_ref}",
-        "Egresados ED6-ED8 cada mil habitantes",
-    )
+        datos, "", "Egresados universitarios cada mil habitantes",
+        destacados=_destacados_extremos(datos))
 
 
 def save_field_scatters(panel: pd.DataFrame, ind: pd.DataFrame,
@@ -199,6 +215,58 @@ def save_field_scatters(panel: pd.DataFrame, ind: pd.DataFrame,
         else:
             plt.close(fig)
     return graficados
+
+
+# Orientación humanística/social vs. científico-técnica ("duras"), por país.
+# ISCED-F narrow no aísla Psicología (cae en F031, Cs. sociales), así que a
+# nivel comparativo se usan los campos broad: F02 Artes y humanidades + F03
+# Cs. sociales/periodismo (incluye Psicología) como orientación humanística,
+# y F05 Cs. naturales/matemática + F06 TIC + F07 Ingeniería como "duras".
+BROAD_HUMANIDADES = ("F02", "F03")
+BROAD_DURAS = ("F05", "F06", "F07")
+
+
+def tabla_ratio_orientacion(panel: pd.DataFrame, anio: int) -> pd.DataFrame:
+    """Ranking de países por egresados humanísticos/sociales por cada "duro".
+
+    Cociente = (F02+F03) / (F05+F06+F07) en ``anio`` (suma ED6-ED8). Devuelve
+    columnas: ranking, iso3, humanidades_sociales, ciencias_tecnologia,
+    ratio_hum_por_dura; ordenado de mayor a menor ratio.
+    """
+    d = panel[panel["year"] == anio].copy()
+    d["broad"] = d["iscedf_narrow"].str[:3]
+    hum = (d[d["broad"].isin(BROAD_HUMANIDADES)].groupby("iso3")["graduates"]
+           .sum().rename("humanidades_sociales"))
+    dur = (d[d["broad"].isin(BROAD_DURAS)].groupby("iso3")["graduates"]
+           .sum().rename("ciencias_tecnologia"))
+    t = pd.concat([hum, dur], axis=1).dropna()
+    t = t[t["ciencias_tecnologia"] > 0]
+    t["ratio_hum_por_dura"] = (t["humanidades_sociales"]
+                               / t["ciencias_tecnologia"]).round(3)
+    t = (t.sort_values("ratio_hum_por_dura", ascending=False)
+         .reset_index().rename(columns={"index": "iso3"}))
+    t.insert(0, "ranking", range(1, len(t) + 1))
+    return t
+
+
+def fig_ranking_ratio(tabla: pd.DataFrame, anio: int):
+    """Barras horizontales del ranking del ratio humanidades/duras (ARG resaltada)."""
+    t = tabla.sort_values("ratio_hum_por_dura")
+    colores = [COLOR_ARG if iso == "ARG" else COLOR_RESTO for iso in t["iso3"]]
+    fig, ax = plt.subplots(figsize=(9, max(5, 0.28 * len(t))))
+    ax.barh(range(len(t)), t["ratio_hum_por_dura"], color=colores,
+            edgecolor="white", linewidth=0.6)
+    ax.axvline(1, color="#888888", lw=1, ls="--")   # paridad
+    ax.set_yticks(range(len(t)))
+    ax.set_yticklabels(t["iso3"], fontsize=7.5)
+    ax.set_xlabel(f"Egresados de humanidades y cs. sociales por cada egresado "
+                  f"de ciencias, tecnología e ingeniería ({anio})")
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    ax.xaxis.grid(True, color="#e6e6e6", linewidth=0.7)
+    ax.set_axisbelow(True)
+    fig.tight_layout()
+    return fig
 
 
 def variable_summary(panel: pd.DataFrame, ind: pd.DataFrame) -> str:

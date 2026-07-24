@@ -3,7 +3,8 @@ import pandas as pd
 
 from build_panel import data_dictionary
 from eurostat_api import is_narrow
-from report import disciplina_codes, load_field_labels, variable_summary
+from report import (disciplina_codes, load_field_labels,
+                    tabla_ratio_orientacion, variable_summary)
 
 NFD = {"F000", "F020", "F030", "F040", "F050",
        "F070", "F080", "F090", "F100"}
@@ -23,6 +24,24 @@ def test_disciplina_codes_excluye_nfd():
     assert disc.isdisjoint(NFD)          # ningún "not further defined"
     assert len(disc) == 57 - len(NFD)    # el resto sí está
     assert "F061" in disc                # una disciplina real de control
+
+
+def test_tabla_ratio_orientacion():
+    # AAA: humanístico F021=200 / duro F071=100 → 2.0 ; BBB: F031=50 / F061=200 → 0.25
+    panel = pd.DataFrame({
+        "iso3": ["AAA", "AAA", "BBB", "BBB"],
+        "year": [2023] * 4,
+        "isced_level": ["ED6"] * 4,
+        "iscedf_narrow": ["F021", "F071", "F031", "F061"],
+        "graduates": [200.0, 100.0, 50.0, 200.0],
+        "source": ["x"] * 4,
+    })
+    t = tabla_ratio_orientacion(panel, 2023)
+    assert list(t["ranking"]) == [1, 2]
+    assert t.iloc[0]["iso3"] == "AAA"
+    assert abs(t.iloc[0]["ratio_hum_por_dura"] - 2.0) < 1e-6
+    assert t.iloc[-1]["iso3"] == "BBB"
+    assert abs(t.iloc[-1]["ratio_hum_por_dura"] - 0.25) < 1e-6
 
 
 def test_diccionario_estructura():

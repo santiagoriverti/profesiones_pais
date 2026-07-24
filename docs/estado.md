@@ -14,7 +14,8 @@ Panel comparativo de egresados de educación superior por campo de estudio
 
 Dos entregables, cada uno con su notebook Colab:
 - **`00_profesiones_mundo`** — panel ISCED-F comparativo entre países
-  (`src/build_panel.py`, `src/report.py`).
+  (`src/build_panel.py`, `src/report.py`); incluye ranking de orientación
+  humanística (F02+F03) vs. científico-técnica (F05+F06+F07) por país.
 - **`01_profesiones_argentina`** — análisis nativo de la SPU sin ISCED-F
   (tipo de universidad, nivel académico, disciplina), vía `src/argentina.py`.
 
@@ -24,7 +25,7 @@ Dos entregables, cada uno con su notebook Colab:
   · niveles ED6/ED7/ED8 · 57 campos ISCED-F.
 - **Argentina**: 600 filas · 2014-2023 · 21 campos · 1.093.255 egresados
   acumulados (vía crosswalk SPU→ISCED-F).
-- **Tests**: 31 pasan (sin red). Auditoría de coherencia superada.
+- **Tests**: 32 pasan (sin red). Auditoría de coherencia superada.
 - **Argentina (SPU nativo)**: `src/argentina.py` + notebook
   `01_profesiones_argentina` — tipo de universidad, nivel académico,
   disciplina, ratio Psicología/Ingeniería y proxy de intensidad de egreso.

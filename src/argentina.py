@@ -18,7 +18,7 @@ VALOR). ``VALOR`` ya viene como entero (cantidad de personas).
 
 from __future__ import annotations
 
-import shutil
+import textwrap
 import zipfile
 from pathlib import Path
 
@@ -118,8 +118,8 @@ def _estilo(ax):
     ax.set_axisbelow(True)
 
 
-def _fig_base100(detalle: pd.DataFrame, titulo: str):
-    """Líneas de evolución base 100 por categoría."""
+def _fig_base100(detalle: pd.DataFrame, titulo: str = ""):
+    """Líneas de evolución base 100 por categoría (sin título; años en 45°)."""
     fig, ax = plt.subplots(figsize=(9, 4.6))
     for color, (cat, sub) in zip(PALETA, detalle.groupby("categoria")):
         sub = sub.sort_values("anio")
@@ -129,17 +129,19 @@ def _fig_base100(detalle: pd.DataFrame, titulo: str):
                     xytext=(6, 0), textcoords="offset points", va="center",
                     fontsize=9, color="#444444")
     primer = int(detalle["anio"].min())
+    anios = sorted(detalle["anio"].unique())
     ax.axhline(100, color="#bbbbbb", lw=1, ls="--")
-    ax.set_title(titulo, loc="left", fontsize=12)
     ax.set_ylabel(f"Índice base 100 = {primer}")
+    ax.set_xticks(anios)
+    ax.set_xticklabels(anios, rotation=45, ha="right")
     ax.legend(frameon=False, fontsize=8, loc="upper left")
     _estilo(ax)
     fig.tight_layout()
     return fig
 
 
-def _fig_torta_ultimo(detalle: pd.DataFrame, titulo: str):
-    """Torta de la composición del último año."""
+def _fig_torta_ultimo(detalle: pd.DataFrame, titulo: str = ""):
+    """Torta de la composición del último año (sin título)."""
     ult = int(detalle["anio"].max())
     d = detalle[detalle["anio"] == ult].sort_values("egresados", ascending=False)
     fig, ax = plt.subplots(figsize=(6.4, 5))
@@ -148,7 +150,6 @@ def _fig_torta_ultimo(detalle: pd.DataFrame, titulo: str):
            colors=PALETA[: len(d)],
            wedgeprops={"edgecolor": "white", "linewidth": 1.5},
            textprops={"fontsize": 9})
-    ax.set_title(f"{titulo} — {ult}", loc="center", fontsize=12)
     fig.tight_layout()
     return fig
 
@@ -195,17 +196,19 @@ def tabla_grado_por_mil(eg: pd.DataFrame, pop: pd.Series) -> pd.DataFrame:
 
 
 def fig_grado_por_mil(tabla: pd.DataFrame):
+    """Barras verticales de Grado cada mil hab. (sin título; años en 45°)."""
     fig, ax = plt.subplots(figsize=(9, 4.4))
     t = tabla.sort_values("anio")
-    ax.plot(t["anio"], t["grado_por_mil"], color=PALETA[0], lw=2.2, marker="o", ms=4)
+    ax.bar(t["anio"], t["grado_por_mil"], color=PALETA[0],
+           edgecolor="white", linewidth=0.8)
     for _, r in t.iterrows():
         ax.annotate(f"{r['grado_por_mil']:.2f}", (r["anio"], r["grado_por_mil"]),
-                    xytext=(0, 6), textcoords="offset points", ha="center",
+                    xytext=(0, 4), textcoords="offset points", ha="center",
                     fontsize=7.5, color="#444444")
-    ax.set_title("Egresados de Grado cada mil habitantes — Argentina",
-                 loc="left", fontsize=12)
     ax.set_ylabel("Egresados de Grado / 1.000 hab.")
     ax.set_ylim(bottom=0)
+    ax.set_xticks(list(t["anio"]))
+    ax.set_xticklabels(list(t["anio"]), rotation=45, ha="right")
     _estilo(ax)
     fig.tight_layout()
     return fig
@@ -263,9 +266,7 @@ def fig_top10_por_anio(detalle: pd.DataFrame, n: int = 10):
             ax.spines[sp].set_visible(False)
     for ax in axes[len(anios):]:
         ax.axis("off")
-    fig.suptitle(f"Top {n} disciplinas por egresados, por año",
-                 x=0.01, ha="left", fontsize=13)
-    fig.tight_layout(rect=(0, 0, 1, 0.97))
+    fig.tight_layout()
     return fig
 
 
@@ -289,9 +290,8 @@ def fig_top10_comparativo(detalle: pd.DataFrame, n: int = 10):
     ax.barh([i - h / 2 for i in y], piv[a1], height=h, color=PALETA[1],
             label=str(a1), edgecolor="white", linewidth=0.5)
     ax.set_yticks(list(y))
-    ax.set_yticklabels([_abrev(x, 30) for x in piv.index], fontsize=8)
-    ax.set_title(f"Top {n} disciplinas por egresados: {a0} vs {a1}",
-                 loc="left", fontsize=12)
+    ax.set_yticklabels(["\n".join(textwrap.wrap(x, 24)) for x in piv.index],
+                       fontsize=8)
     ax.set_xlabel("Egresados")
     ax.legend(frameon=False, fontsize=9, loc="lower right")
     for sp in ("top", "right"):
@@ -330,19 +330,19 @@ def fig_ratio_psico_ing(tabla: pd.DataFrame):
     t["anio"] = t["anio"].astype(int)
     glob = tabla.iloc[-1]["ratio_psico_por_ing"]
     fig, ax = plt.subplots(figsize=(9, 4.4))
-    ax.plot(t["anio"], t["ratio_psico_por_ing"], color=PALETA[3], lw=2.2,
-            marker="o", ms=4)
-    ax.axhline(glob, color="#bbbbbb", lw=1, ls="--",
+    ax.bar(t["anio"], t["ratio_psico_por_ing"], color=PALETA[3],
+           edgecolor="white", linewidth=0.8)
+    ax.axhline(glob, color="#888888", lw=1, ls="--",
                label=f"Global = {glob:.2f}")
     for _, r in t.iterrows():
         ax.annotate(f"{r['ratio_psico_por_ing']:.2f}",
                     (r["anio"], r["ratio_psico_por_ing"]),
-                    xytext=(0, 6), textcoords="offset points", ha="center",
+                    xytext=(0, 4), textcoords="offset points", ha="center",
                     fontsize=7.5, color="#444444")
-    ax.set_title("Egresados de Psicología por cada egresado de Ingeniería",
-                 loc="left", fontsize=12)
     ax.set_ylabel("Psicología / Ingeniería")
     ax.set_ylim(bottom=0)
+    ax.set_xticks(list(t["anio"]))
+    ax.set_xticklabels(list(t["anio"]), rotation=45, ha="right")
     ax.legend(frameon=False, fontsize=9, loc="upper left")
     _estilo(ax)
     fig.tight_layout()
@@ -372,8 +372,6 @@ def fig_egre_vs_estu(tabla: pd.DataFrame):
     t = tabla.sort_values("anio")
     ax.plot(t["anio"], t["egresados_por_100_estud"], color=PALETA[2], lw=2.2,
             marker="o", ms=4)
-    ax.set_title("Egresados cada 100 estudiantes — proxy de intensidad de "
-                 "egreso (NO deserción)", loc="left", fontsize=11.5)
     ax.set_ylabel("Egresados por 100 estudiantes")
     ax.set_ylim(bottom=0)
     _estilo(ax)

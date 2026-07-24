@@ -61,6 +61,12 @@ editarlos a mano, se regeneran con sus scripts y se validan con nbclient:
   archivo (`periodo(df)`), no se hardcodea 2014-2023. No se calcula "tasa de
   deserción" (no hay ingresantes por cohorte): solo el proxy egresados/
   estudiantes, explícitamente NO deserción. `VALOR` ya es entero en el xlsx.
+- Los gráficos de ambos notebooks van **sin título principal** a propósito
+  (el contexto va en el markdown del notebook); no re-agregarlos.
+- Ranking de orientación (NB00, `report.tabla_ratio_orientacion`): razón
+  broad humanidades+cs sociales (F02+F03, incluye Psicología, que narrow no
+  aísla) / ciencias duras+tec (F05+F06+F07). Distinto del ratio exacto
+  Psicología/Ingeniería del NB01 (disciplinas SPU).
 
 ## Estado y pendientes
 

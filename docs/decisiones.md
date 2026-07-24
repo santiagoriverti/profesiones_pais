@@ -45,6 +45,29 @@ Grado, maestría y doctorado. Se excluye ISCED 5 (pregrado/ciclo corto).
 - "Salud Pública" → F091 (media): aparece en el Excel real de la SPU.
 - "Otras Ciencias Humanas" se mantiene aunque este Excel no la use.
 
+## 2026-07-24 — Ranking de orientación y ajustes de gráficos
+
+- **Ranking humanístico vs. científico-técnico (notebook 00)**: como ISCED-F
+  narrow no aísla Psicología (cae en F031, ciencias sociales), a nivel
+  comparativo entre países se usa una razón entre campos *broad*:
+  **humanidades y ciencias sociales** (F02 Artes y humanidades + F03 Cs.
+  sociales/periodismo, incluye Psicología) sobre **ciencias duras, tecnología
+  e ingeniería** (F05 Cs. naturales/matemática + F06 TIC + F07 Ingeniería).
+  Ratio > 1 = predominio humanístico; < 1 = predominio técnico. Tabla de
+  ranking + gráfico de barras (`report.tabla_ratio_orientacion` /
+  `fig_ranking_ratio`). En 2023: Chipre lidera (~1,9), Alemania al fondo
+  (~0,46), Argentina ~1,05 (puesto 10). El ratio exacto Psicología/Ingeniería
+  a nivel disciplina existe aparte en el notebook 01 (datos SPU).
+- **Ajustes de gráficos (pedido del usuario)**: se sacaron los títulos
+  principales de los gráficos de ambos notebooks (el contexto va en el
+  markdown). Notebook 00: gráfico de composición sin "(ED6)" en el eje;
+  scatter de desarrollo con eje "Egresados universitarios cada mil
+  habitantes", sin título y con más países etiquetados (extremos +
+  intermedios, dinámico vía `_destacados_extremos`). Notebook 01: años como
+  etiquetas en 45° en las evoluciones base 100, y `grado_por_mil` y
+  `ratio_psico_ing` pasan a barras verticales; el comparativo top-10 envuelve
+  las etiquetas largas en varias líneas (textwrap) en vez de truncarlas.
+
 ## 2026-07-24 — Análisis nativo de Argentina (SPU) y notebook 01
 
 Se separa el proyecto en dos notebooks: `00_profesiones_mundo` (panel
