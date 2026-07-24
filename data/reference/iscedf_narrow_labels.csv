@@ -1,58 +1,58 @@
-iscedf_narrow,label_en,label_es
-F000,Generic programmes and qualifications not further defined,Programas genéricos sin mayor definición
-F001,Basic programmes and qualifications,Programas y certificaciones básicos
-F002,Literacy and numeracy,Alfabetización y aritmética
-F003,Personal skills and development,Habilidades y desarrollo personal
-F009,Generic programmes and qualifications not elsewhere classified,Programas genéricos n.c.p.
-F011,Education,Educación
-F018,Inter-disciplinary programmes and qualifications involving education,Interdisciplinarios con educación
-F020,Arts and humanities not further defined,Artes y humanidades sin mayor definición
-F021,Arts,Artes
-F022,Humanities (except languages),Humanidades (excepto idiomas)
-F023,Languages,Idiomas
-F028,Inter-disciplinary programmes and qualifications involving arts and humanities,Interdisciplinarios con artes y humanidades
-F029,Arts and humanities not elsewhere classified,Artes y humanidades n.c.p.
-F030,"Social sciences, journalism and information not further defined","Cs. sociales, periodismo e información sin mayor definición"
-F031,Social and behavioural sciences,Ciencias sociales y del comportamiento
-F032,Journalism and information,Periodismo e información
-F038,"Inter-disciplinary programmes and qualifications involving social sciences, journalism and information",Interdisciplinarios con ciencias sociales
-F039,"Social sciences, journalism and information not elsewhere classified","Cs. sociales, periodismo e información n.c.p."
-F040,"Business, administration and law not further defined","Negocios, administración y derecho sin mayor definición"
-F041,Business and administration,Negocios y administración
-F042,Law,Derecho
-F048,"Inter-disciplinary programmes and qualifications involving business, administration and law","Interdisciplinarios con negocios, administración y derecho"
-F049,"Business, administration and law not elsewhere classified","Negocios, administración y derecho n.c.p."
-F050,"Natural sciences, mathematics and statistics not further defined","Cs. naturales, matemática y estadística sin mayor definición"
-F051,Biological and related sciences,Ciencias biológicas y afines
-F052,Environment,Medio ambiente
-F053,Physical sciences,Ciencias físicas
-F054,Mathematics and statistics,Matemática y estadística
-F058,"Inter-disciplinary programmes and qualifications involving natural sciences, mathematics and statistics",Interdisciplinarios con ciencias naturales
-F059,"Natural sciences, mathematics and statistics not elsewhere classified","Cs. naturales, matemática y estadística n.c.p."
-F061,Information and communication technologies,Tecnologías de la información y la comunicación (TIC)
-F068,Inter-disciplinary programmes and qualifications involving information and communication technologies,Interdisciplinarios con TIC
-F070,"Engineering, manufacturing and construction not further defined","Ingeniería, industria y construcción sin mayor definición"
-F071,Engineering and engineering trades,Ingeniería y profesiones afines
-F072,Manufacturing and processing,Industria y producción
-F073,Architecture and construction,Arquitectura y construcción
-F078,"Inter-disciplinary programmes and qualifications involving engineering, manufacturing and construction",Interdisciplinarios con ingeniería
-F079,"Engineering, manufacturing and construction not elsewhere classified","Ingeniería, industria y construcción n.c.p."
-F080,"Agriculture, forestry, fisheries and veterinary not further defined","Agro, silvicultura, pesca y veterinaria sin mayor definición"
-F081,Agriculture,Agricultura
-F082,Forestry,Silvicultura
-F083,Fisheries,Pesca
-F084,Veterinary,Veterinaria
-F088,"Inter-disciplinary programmes and qualifications involving agriculture, forestry, fisheries and veterinary",Interdisciplinarios con agro y veterinaria
-F089,"Agriculture, forestry, fisheries and veterinary not elsewhere classified","Agro, silvicultura, pesca y veterinaria n.c.p."
-F090,Health and welfare not further defined,Salud y bienestar sin mayor definición
-F091,Health,Salud
-F092,Welfare,Bienestar y servicios sociales
-F098,Inter-disciplinary programmes and qualifications involving health and welfare,Interdisciplinarios con salud y bienestar
-F099,Health and welfare not elsewhere classified,Salud y bienestar n.c.p.
-F100,Services not further defined,Servicios sin mayor definición
-F101,Personal services,Servicios personales
-F102,Hygiene and occupational health services,Higiene y salud ocupacional
-F103,Security services,Servicios de seguridad
-F104,Transport services,Servicios de transporte
-F108,Inter-disciplinary programmes and qualifications involving services,Interdisciplinarios con servicios
-F109,Services not elsewhere classified,Servicios n.c.p.
+iscedf_narrow,label_en,label_es,tipo
+F000,Generic programmes and qualifications not further defined,Programas genéricos sin mayor definición,no_definido
+F001,Basic programmes and qualifications,Programas y certificaciones básicos,disciplina
+F002,Literacy and numeracy,Alfabetización y aritmética,disciplina
+F003,Personal skills and development,Habilidades y desarrollo personal,disciplina
+F009,Generic programmes and qualifications not elsewhere classified,Programas genéricos n.c.p.,disciplina
+F011,Education,Educación,disciplina
+F018,Inter-disciplinary programmes and qualifications involving education,Interdisciplinarios con educación,disciplina
+F020,Arts and humanities not further defined,Artes y humanidades sin mayor definición,no_definido
+F021,Arts,Artes,disciplina
+F022,Humanities (except languages),Humanidades (excepto idiomas),disciplina
+F023,Languages,Idiomas,disciplina
+F028,Inter-disciplinary programmes and qualifications involving arts and humanities,Interdisciplinarios con artes y humanidades,disciplina
+F029,Arts and humanities not elsewhere classified,Artes y humanidades n.c.p.,disciplina
+F030,"Social sciences, journalism and information not further defined","Cs. sociales, periodismo e información sin mayor definición",no_definido
+F031,Social and behavioural sciences,Ciencias sociales y del comportamiento,disciplina
+F032,Journalism and information,Periodismo e información,disciplina
+F038,"Inter-disciplinary programmes and qualifications involving social sciences, journalism and information",Interdisciplinarios con ciencias sociales,disciplina
+F039,"Social sciences, journalism and information not elsewhere classified","Cs. sociales, periodismo e información n.c.p.",disciplina
+F040,"Business, administration and law not further defined","Negocios, administración y derecho sin mayor definición",no_definido
+F041,Business and administration,Negocios y administración,disciplina
+F042,Law,Derecho,disciplina
+F048,"Inter-disciplinary programmes and qualifications involving business, administration and law","Interdisciplinarios con negocios, administración y derecho",disciplina
+F049,"Business, administration and law not elsewhere classified","Negocios, administración y derecho n.c.p.",disciplina
+F050,"Natural sciences, mathematics and statistics not further defined","Cs. naturales, matemática y estadística sin mayor definición",no_definido
+F051,Biological and related sciences,Ciencias biológicas y afines,disciplina
+F052,Environment,Medio ambiente,disciplina
+F053,Physical sciences,Ciencias físicas,disciplina
+F054,Mathematics and statistics,Matemática y estadística,disciplina
+F058,"Inter-disciplinary programmes and qualifications involving natural sciences, mathematics and statistics",Interdisciplinarios con ciencias naturales,disciplina
+F059,"Natural sciences, mathematics and statistics not elsewhere classified","Cs. naturales, matemática y estadística n.c.p.",disciplina
+F061,Information and communication technologies,Tecnologías de la información y la comunicación (TIC),disciplina
+F068,Inter-disciplinary programmes and qualifications involving information and communication technologies,Interdisciplinarios con TIC,disciplina
+F070,"Engineering, manufacturing and construction not further defined","Ingeniería, industria y construcción sin mayor definición",no_definido
+F071,Engineering and engineering trades,Ingeniería y profesiones afines,disciplina
+F072,Manufacturing and processing,Industria y producción,disciplina
+F073,Architecture and construction,Arquitectura y construcción,disciplina
+F078,"Inter-disciplinary programmes and qualifications involving engineering, manufacturing and construction",Interdisciplinarios con ingeniería,disciplina
+F079,"Engineering, manufacturing and construction not elsewhere classified","Ingeniería, industria y construcción n.c.p.",disciplina
+F080,"Agriculture, forestry, fisheries and veterinary not further defined","Agro, silvicultura, pesca y veterinaria sin mayor definición",no_definido
+F081,Agriculture,Agricultura,disciplina
+F082,Forestry,Silvicultura,disciplina
+F083,Fisheries,Pesca,disciplina
+F084,Veterinary,Veterinaria,disciplina
+F088,"Inter-disciplinary programmes and qualifications involving agriculture, forestry, fisheries and veterinary",Interdisciplinarios con agro y veterinaria,disciplina
+F089,"Agriculture, forestry, fisheries and veterinary not elsewhere classified","Agro, silvicultura, pesca y veterinaria n.c.p.",disciplina
+F090,Health and welfare not further defined,Salud y bienestar sin mayor definición,no_definido
+F091,Health,Salud,disciplina
+F092,Welfare,Bienestar y servicios sociales,disciplina
+F098,Inter-disciplinary programmes and qualifications involving health and welfare,Interdisciplinarios con salud y bienestar,disciplina
+F099,Health and welfare not elsewhere classified,Salud y bienestar n.c.p.,disciplina
+F100,Services not further defined,Servicios sin mayor definición,no_definido
+F101,Personal services,Servicios personales,disciplina
+F102,Hygiene and occupational health services,Higiene y salud ocupacional,disciplina
+F103,Security services,Servicios de seguridad,disciplina
+F104,Transport services,Servicios de transporte,disciplina
+F108,Inter-disciplinary programmes and qualifications involving services,Interdisciplinarios con servicios,disciplina
+F109,Services not elsewhere classified,Servicios n.c.p.,disciplina

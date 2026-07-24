@@ -4,12 +4,12 @@ import pytest
 
 from crosswalk import apply_crosswalk, load_crosswalk
 
+# Tras la revisión del 2026-07-24 solo quedan baja los dos casos con
+# ambigüedad de contenido real (ver docs/decisiones.md). Los residuales
+# "Otras Ciencias X" y "Relaciones Institucionales y Humanas" pasaron a media.
 CASOS_BAJA_ESPERADOS = {
     "Industrias",
     "Sanidad",
-    "Relaciones Institucionales y Humanas",
-    "Otras Ciencias Aplicadas",
-    "Otras Ciencias Sociales",
 }
 
 

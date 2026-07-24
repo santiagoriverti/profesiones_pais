@@ -3,7 +3,10 @@ import pandas as pd
 
 from build_panel import data_dictionary
 from eurostat_api import is_narrow
-from report import load_field_labels, variable_summary
+from report import disciplina_codes, load_field_labels, variable_summary
+
+NFD = {"F000", "F020", "F030", "F040", "F050",
+       "F070", "F080", "F090", "F100"}
 
 
 def test_labels_cubren_todos_los_narrow():
@@ -13,6 +16,13 @@ def test_labels_cubren_todos_los_narrow():
     assert labels.loc["F061"].startswith("Tecnologías de la información")
     labels_en = load_field_labels("en")
     assert labels_en.loc["F061"] == "Information and communication technologies"
+
+
+def test_disciplina_codes_excluye_nfd():
+    disc = disciplina_codes()
+    assert disc.isdisjoint(NFD)          # ningún "not further defined"
+    assert len(disc) == 57 - len(NFD)    # el resto sí está
+    assert "F061" in disc                # una disciplina real de control
 
 
 def test_diccionario_estructura():

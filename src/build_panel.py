@@ -134,6 +134,20 @@ def build_eurostat_panel(force: bool = False) -> tuple[pd.DataFrame, pd.DataFram
     panel = con_dato[con_dato["nivel_campo"] == "narrow"].copy()
     panel = panel.rename(columns={"iscedf13": "iscedf_narrow"})
     panel["source"] = "eurostat_educ_uoe_grad02"
+
+    # Guard de calidad: Eurostat reporta ocasionalmente valores negativos en
+    # los códigos "not further defined" (F0x0), residuales que calcula por
+    # diferencia y quedan levemente <0 por redondeo/confidencialidad. Un
+    # conteo de egresados no puede ser negativo; se fuerza a 0 (el panel ya
+    # usa 0 explícito para "sin egresados").
+    neg = panel["graduates"] < 0
+    if neg.any():
+        logger.warning(
+            "Eurostat: %d celda(s) con graduates<0 (artefacto nfd); se fuerzan a 0",
+            int(neg.sum()),
+        )
+        panel.loc[neg, "graduates"] = 0.0
+
     panel = panel[
         ["iso3", "year", "isced_level", "iscedf_narrow", "graduates", "source"]
     ].sort_values(["iso3", "year", "isced_level", "iscedf_narrow"])

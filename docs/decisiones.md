@@ -45,6 +45,65 @@ Grado, maestría y doctorado. Se excluye ISCED 5 (pregrado/ciclo corto).
 - "Salud Pública" → F091 (media): aparece en el Excel real de la SPU.
 - "Otras Ciencias Humanas" se mantiene aunque este Excel no la use.
 
+## 2026-07-24 — Auditoría de coherencia del dataset
+
+Auditoría cruzada de panel/indicadores/coverage/dataset.xlsx. La estructura
+salió sana (sin duplicados ni nulos en el panel, 57 códigos con etiqueta,
+join panel↔indicadores sin huérfanos). Se corrigieron/documentaron:
+
+- **Egresados negativos → 0 (guard en el pipeline)**. Eurostat traía
+  `BEL·2014·ED6·F050 = -38`, artefacto de redondeo/confidencialidad en un
+  código "not further defined" (residual calculado por diferencia; el resto
+  de esa serie es 0). `build_eurostat_panel` ahora fuerza `graduates<0 → 0`
+  con `warning` en el log. Reproducible ante re-descargas. Aislado (1 de
+  64.650). Guard permanente en `tests/test_data_integrity.py`.
+- **Códigos "not further defined" (F0x0) → marcados, no borrados**. Son 9
+  códigos residuales de "subcampo desconocido" (F000, F020, F030, F040,
+  F050, F070, F080, F090, F100), pesan ~0,6% del total y Argentina nunca
+  cae en ellos (0%). Se conservan en el panel y en los totales país (son
+  egresados reales), pero se **excluyen de los gráficos/rankings por campo**
+  porque distorsionan la comparación (asimetría Europa/ARG). Marca en la
+  columna `tipo` de `iscedf_narrow_labels.csv` (disciplina / no_definido);
+  `report.disciplina_codes()` es el filtro único. No confundir con los
+  residuales `F0x9` ("not elsewhere classified"), que sí son disciplinas y
+  son los que usa el crosswalk de ARG.
+- **Caveat de ceros (Europa vs Argentina)**. Eurostat reporta 0 explícito
+  para combinaciones país-campo-nivel-año sin egresados (~54% de sus filas);
+  Argentina, vía crosswalk, solo genera filas donde la SPU tiene dato
+  (ausencia = fila faltante, 0% de ceros). Consecuencia para el análisis:
+  cualquier promedio/share por campo debe fijar un criterio explícito (p. ej.
+  calcular solo sobre países con cobertura narrow completa) para no sesgar la
+  comparación. No se altera el dato; queda como advertencia metodológica.
+- **Gaps legítimos documentados**: `gdp_pc_ppp` nulo para Liechtenstein
+  (LIE) en los 11 años (el Banco Mundial no publica PPA para LIE; sí tiene
+  PIB pc USD); `hdi` nulo en 2024 para los 39 países (el HDR llega a 2023).
+
+## 2026-07-24 — Revisión de los mapeos `confianza=baja` del crosswalk
+
+Revisión de los 6 mapeos marcados `baja`. El panel no cambia: el pipeline
+corre con `min_confianza="baja"` (incluye todo); la revisión solo reclasifica
+confianza y reescribe notas.
+
+- **Reclasificados a `media`** (mapeo correcto por construcción, no una
+  adivinanza): los tres residuales *Otras Ciencias Aplicadas* → F079,
+  *Otras Ciencias Sociales* → F039 y *Otras Ciencias Humanas* → F029 son el
+  residual ISCED del mismo campo amplio de la rama SPU (07, 03, 02
+  respectivamente); el campo amplio es cierto y F_x9 es su residual por
+  definición. *Relaciones Institucionales y Humanas* → F041: RRHH (0413) y
+  RRPP/publicidad (0414) caen ambas en F041, así que el agregado aterriza en
+  F041 sin importar el split interno.
+- **Se mantienen `baja`** (ambigüedad de contenido real, requieren el
+  nomenclador de carreras de la SPU): *Industrias* → F072 (la SPU tiene
+  *Ingeniería* aparte → "Industrias" es sobre todo procesamiento/alimentos,
+  pero puede arrastrar ingeniería industrial F071; 3,4% de egresados ARG,
+  volumen material) y *Sanidad* → F102 (cara o ceca entre F091 salud pública
+  y F102 higiene/seguridad ocupacional; la existencia de *Salud Pública*
+  aparte inclina a F102; 0,2%).
+- **Reconciliación 5 vs 6**: el CSV tiene 6 filas `baja` pero *Otras Ciencias
+  Humanas* no aparece en el Excel vigente de la SPU (fila defensiva, 0
+  egresados), por eso los conteos previos hablaban de "5". Tras esta revisión
+  quedan **2** casos `baja` reales (Industrias, Sanidad).
+
 ## 2026-07-22 — Rango temporal: desde 2014
 
 Originalmente 2013+; se alineó a 2014 porque la serie argentina de la SPU

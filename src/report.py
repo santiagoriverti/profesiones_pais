@@ -39,6 +39,22 @@ def load_field_labels(lang: str = "es") -> pd.Series:
     return labels.set_index("iscedf_narrow")[f"label_{lang}"]
 
 
+def disciplina_codes() -> set[str]:
+    """Códigos ISCED-F que son disciplinas reales (excluye 'no_definido').
+
+    Los códigos "not further defined" (F0x0) son residuales de subcampo
+    desconocido: pesan ~0,6% y Argentina nunca cae en ellos, así que
+    distorsionan cualquier comparación por campo. Se excluyen de los
+    gráficos y rankings por campo, pero se conservan en los totales país.
+    Si el CSV de etiquetas no trae la columna ``tipo`` (versión vieja), se
+    devuelven todos los códigos.
+    """
+    labels = pd.read_csv(LABELS_PATH)
+    if "tipo" not in labels.columns:
+        return set(labels["iscedf_narrow"])
+    return set(labels.loc[labels["tipo"] == "disciplina", "iscedf_narrow"])
+
+
 def save_fig(fig, name: str, subdir: str = "") -> Path:
     """Guarda la figura a 600 dpi en output/graficos[/subdir]/name.png."""
     destino = GRAFICOS_DIR / subdir if subdir else GRAFICOS_DIR
@@ -54,7 +70,8 @@ def fig_argentina_evolucion(panel: pd.DataFrame, ind: pd.DataFrame):
     Suma ED6+ED7+ED8 por campo y año, normalizada por población.
     """
     labels = load_field_labels()
-    arg = panel[panel["iso3"] == "ARG"]
+    disc = disciplina_codes()
+    arg = panel[(panel["iso3"] == "ARG") & (panel["iscedf_narrow"].isin(disc))]
     pop = ind[ind["iso3"] == "ARG"].set_index("year")["population"]
 
     serie = (arg.groupby(["iscedf_narrow", "year"])["graduates"].sum()
@@ -156,8 +173,10 @@ def save_field_scatters(panel: pd.DataFrame, ind: pd.DataFrame,
     Devuelve la lista de campos graficados.
     """
     labels = load_field_labels()
+    disc = disciplina_codes()
     ind_ref = ind[ind["year"] == anio_ref].set_index("iso3")
-    corte = panel[panel["year"] == anio_ref]
+    corte = panel[(panel["year"] == anio_ref)
+                  & (panel["iscedf_narrow"].isin(disc))]
 
     graficados = []
     for campo in sorted(corte["iscedf_narrow"].unique()):
