@@ -61,7 +61,7 @@ else:
 
 sys.path.insert(0, str(pathlib.Path("src").resolve()))
 # Purga módulos del proyecto ya importados (por si el kernel tenía una versión vieja)
-for _m in ("eurostat_api", "crosswalk", "spu_data", "indicators", "build_panel"):
+for _m in ("eurostat_api", "crosswalk", "spu_data", "indicators", "build_panel", "report"):
     sys.modules.pop(_m, None)
 print("Directorio de trabajo:", os.getcwd())"""))
 
