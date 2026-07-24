@@ -12,6 +12,9 @@ F011 Educación, F061 TIC, F091 Salud, ...).
 | **`00_profesiones_mundo`** | Panel comparativo ISCED-F entre países (Eurostat + Argentina vía crosswalk), indicadores de desarrollo, gráficos y ranking de orientación humanística vs. científico-técnica por país. Pipeline end-to-end. | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/santiagoriverti/profesiones_pais/blob/main/notebooks/00_profesiones_mundo.ipynb) |
 | **`01_profesiones_argentina`** | Egresados de Argentina con las categorías propias de la SPU (tipo de universidad, nivel académico, disciplina), sin pasar por ISCED-F. Export de gráficos 600 dpi + Excel en ZIP. | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/santiagoriverti/profesiones_pais/blob/main/notebooks/01_profesiones_argentina.ipynb) |
 
+La metodología completa de ambos notebooks está en
+[`docs/metodologia.md`](docs/metodologia.md).
+
 El producto central es un panel `iso3 × year × isced_level × iscedf_narrow`
 con conteos absolutos de graduados (ED6 grado, ED7 maestría, ED8 doctorado)
 desde 2014, acompañado de indicadores de desarrollo por país-año

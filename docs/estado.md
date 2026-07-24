@@ -2,6 +2,7 @@
 
 > Punto de entrada único para continuar el trabajo. Complementa
 > [CLAUDE.md](../CLAUDE.md) (arquitectura y gotchas),
+> [docs/metodologia.md](metodologia.md) (metodología de ambos notebooks),
 > [docs/decisiones.md](decisiones.md) (registro fechado de decisiones) y
 > [docs/fuentes_datos.md](fuentes_datos.md) (estructura verificada de cada
 > fuente). Última actualización: **2026-07-24**.
