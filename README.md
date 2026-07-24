@@ -1,11 +1,16 @@
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/santiagoriverti/profesiones_pais/blob/main/notebooks/01_descarga_y_panel.ipynb)
-
 # profesiones_pais
 
 Composición de egresados de educación superior por campo de estudio y su
 relación con indicadores de desarrollo, comparando países. La unidad de
 clasificación es **ISCED-F 2013 a nivel *narrow*** (códigos `F` + 3 dígitos:
 F011 Educación, F061 TIC, F091 Salud, ...).
+
+## Notebooks (ejecutables en Colab)
+
+| Notebook | Qué hace | Abrir |
+|---|---|---|
+| **`00_profesiones_mundo`** | Panel comparativo ISCED-F entre países (Eurostat + Argentina vía crosswalk), indicadores de desarrollo y gráficos. Pipeline end-to-end. | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/santiagoriverti/profesiones_pais/blob/main/notebooks/00_profesiones_mundo.ipynb) |
+| **`01_profesiones_argentina`** | Egresados de Argentina con las categorías propias de la SPU (tipo de universidad, nivel académico, disciplina), sin pasar por ISCED-F. Export de gráficos 600 dpi + Excel en ZIP. | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/santiagoriverti/profesiones_pais/blob/main/notebooks/01_profesiones_argentina.ipynb) |
 
 El producto central es un panel `iso3 × year × isced_level × iscedf_narrow`
 con conteos absolutos de graduados (ED6 grado, ED7 maestría, ED8 doctorado)
@@ -44,14 +49,17 @@ profesiones_pais/
 │   ├── spu_data.py           # carga del Excel SPU y mapeo de niveles a ISCED
 │   ├── indicators.py         # población, PIB pc (USD/PPA) e IDH por país-año
 │   ├── build_panel.py        # consolidación, cobertura y export a Excel
-│   └── report.py             # gráficos 600 dpi, resumen de variables y ZIP
+│   ├── report.py             # gráficos 600 dpi, resumen de variables y ZIP
+│   └── argentina.py          # análisis nativo SPU (tipo univ., nivel, disciplina)
 ├── data/
 │   ├── raw/                  # descargas crudas con timestamp (gitignored)
 │   ├── reference/            # crosswalks versionados (SÍ commiteados)
 │   ├── external/             # datos fuente sin API (Excel SPU, commiteado)
 │   └── processed/            # panel.parquet + coverage.csv
 ├── notebooks/
-│   └── 01_descarga_y_panel.ipynb   # pipeline end-to-end, corre en Colab
+│   ├── 00_profesiones_mundo.ipynb        # panel ISCED-F comparativo (Colab)
+│   └── 01_profesiones_argentina.ipynb    # análisis nativo SPU Argentina (Colab)
+├── scripts/                  # generadores de los notebooks (no editar .ipynb a mano)
 └── tests/
 ```
 
@@ -97,13 +105,14 @@ del panel y se reportan en el log.
   broad y queda fuera de la muestra narrow. Países de América Latina, Asia o
   África requieren otras fuentes (p. ej. UNESCO UIS) y no están integrados.
 - **Crosswalk SPU → ISCED-F**: varias disciplinas SPU no tienen contraparte
-  limpia a nivel narrow. Los casos marcados con `confianza=baja` en
+  limpia a nivel narrow. Tras la revisión del 2026-07-24 quedan dos casos con
+  `confianza=baja` en
   [`data/reference/spu_to_iscedf_narrow.csv`](data/reference/spu_to_iscedf_narrow.csv)
-  — "Industrias", "Sanidad", "Relaciones Institucionales y Humanas", "Otras
-  Ciencias Aplicadas", "Otras Ciencias Sociales" — requieren revisión manual
-  (cada duda está documentada en la columna `nota`). Además hay agregados que
-  ISCED parte en dos campos (p. ej. "Economía y Administración" mezcla F031 y
-  F041; "Sociología, Antropología y Servicio Social" mezcla F031 y F092).
+  — "Industrias" y "Sanidad" —, que requieren cotejo con el nomenclador de
+  carreras de la SPU (cada duda está documentada en la columna `nota`; ver
+  [`docs/decisiones.md`](docs/decisiones.md)). Además hay agregados que ISCED
+  parte en dos campos (p. ej. "Economía y Administración" mezcla F031 y F041;
+  "Sociología, Antropología y Servicio Social" mezcla F031 y F092).
 - **Argentina — niveles ISCED**: las especializaciones de posgrado se mapean
   a ED7 junto con las maestrías (criterio del mapeo UNESCO para Argentina);
   si se prefiere una definición estricta de maestría, usar

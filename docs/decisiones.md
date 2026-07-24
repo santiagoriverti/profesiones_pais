@@ -45,6 +45,34 @@ Grado, maestría y doctorado. Se excluye ISCED 5 (pregrado/ciclo corto).
 - "Salud Pública" → F091 (media): aparece en el Excel real de la SPU.
 - "Otras Ciencias Humanas" se mantiene aunque este Excel no la use.
 
+## 2026-07-24 — Análisis nativo de Argentina (SPU) y notebook 01
+
+Se separa el proyecto en dos notebooks: `00_profesiones_mundo` (panel
+ISCED-F comparativo, ex `01_descarga_y_panel`) y `01_profesiones_argentina`
+(nuevo). El notebook 01 analiza las categorías **propias** de la SPU sin
+pasar por ISCED-F, vía `src/argentina.py`. Decisiones:
+
+- **Alcance fijo**: solo `TIPO_ALUMNO=EGRESADOS` y se **excluye siempre
+  Pregrado** (ISCED 5) de todos los análisis y gráficos. Nota: este análisis
+  incluye "Posgrado/Otros" (que el crosswalk a ISCED sí excluye por no poder
+  asignarle nivel), por eso el total nativo (1.103.953) supera al del panel
+  ISCED (1.093.255) en ~10,7 mil.
+- **Período dinámico**: se toma de `ANIO` del archivo (2014-2023 hoy); si el
+  Excel se actualiza con 2024/2025, todo se extiende solo. El comparativo de
+  disciplinas usa primer vs. último año disponibles (hoy 2014 vs 2023).
+- **Ratio Psicología/Ingeniería**: egresados de Psicología por cada egresado
+  de Ingeniería, por año y global (acumulado); va en la tabla de detalle de
+  disciplinas y en un gráfico. Ambas son disciplinas exactas en DISCIP_ESPECIF.
+- **Tasa de deserción — NO se calcula**: requiere seguir cohortes
+  (ingresantes vs. egreso/abandono N años después). El archivo solo tiene
+  stock anual de ESTUDIANTES y flujo anual de EGRESADOS, sin ingresantes: una
+  "deserción" así sería un artefacto. Se reporta en su lugar la relación
+  egresados/estudiantes (egresados cada 100 estudiantes) como **proxy de
+  intensidad de egreso**, explícitamente etiquetado como NO deserción.
+- **Salidas**: 9 gráficos a 600 dpi + `analisis_argentina.xlsx` (8 hojas) en
+  `output/argentina/` (gitignoreado), comprimidos en
+  `profesiones_argentina_export.zip` (en Colab se auto-descarga).
+
 ## 2026-07-24 — Auditoría de coherencia del dataset
 
 Auditoría cruzada de panel/indicadores/coverage/dataset.xlsx. La estructura
@@ -125,9 +153,11 @@ eso el setup del notebook sincroniza con `fetch` + `reset --hard` (nunca
 
 ## 2026-07-22 — Notebook generado por script
 
-`notebooks/01_descarga_y_panel.ipynb` no se edita a mano: se genera con
-`scripts/make_notebook.py` (correr `python scripts/make_notebook.py`) y se
-valida ejecutándolo end-to-end con nbclient antes de commitear.
+Los notebooks no se editan a mano: se generan con sus scripts y se validan
+ejecutándolos end-to-end con nbclient antes de commitear. `make_notebook.py`
+→ `00_profesiones_mundo.ipynb` (renombrado el 2026-07-24; antes
+`01_descarga_y_panel.ipynb`); `make_notebook_arg.py` →
+`01_profesiones_argentina.ipynb`.
 
 ## 2026-07-22 — Capa de reporte (src/report.py) y export
 

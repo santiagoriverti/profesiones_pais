@@ -5,6 +5,9 @@ data/interim/
 # Exportes regenerables (gráficos 600 dpi + ZIP)
 output/
 
+# Archivos temporales/lock de Office (Excel abierto)
+~$*
+
 # Secretos
 .env
 

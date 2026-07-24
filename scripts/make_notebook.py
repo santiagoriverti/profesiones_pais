@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Genera notebooks/01_descarga_y_panel.ipynb.
+"""Genera notebooks/00_profesiones_mundo.ipynb.
 
 El notebook NO se edita a mano: modificar este script, correrlo y validar
 la ejecucion end-to-end (nbclient) antes de commitear.
@@ -15,9 +15,9 @@ def code(source):
 
 cells = []
 
-cells.append(md("""# Egresados de educación superior por campo de estudio
+cells.append(md("""# Profesiones en el mundo — egresados por campo de estudio (Eurostat + Argentina)
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/santiagoriverti/profesiones_pais/blob/main/notebooks/01_descarga_y_panel.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/santiagoriverti/profesiones_pais/blob/main/notebooks/00_profesiones_mundo.ipynb)
 
 Pipeline end-to-end del proyecto **profesiones_pais**: descarga de graduados
 por campo ISCED-F 2013 a nivel *narrow* (F011, F021, ...) desde Eurostat,
@@ -277,7 +277,7 @@ nb = {
 }
 
 import pathlib
-out = str(pathlib.Path(__file__).resolve().parents[1] / "notebooks" / "01_descarga_y_panel.ipynb")
+out = str(pathlib.Path(__file__).resolve().parents[1] / "notebooks" / "00_profesiones_mundo.ipynb")
 with open(out, "w", encoding="utf-8") as f:
     json.dump(nb, f, ensure_ascii=False, indent=1)
 print("OK", out)

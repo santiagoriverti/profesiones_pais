@@ -18,13 +18,16 @@ esquema de datos, pendientes y gaps — punto de entrada único).
 | `src/spu_data.py` | Lee `data/external/profesiones_arg.xlsx` y mapea niveles SPU → ISCED |
 | `src/crosswalk.py` | Aplica `data/reference/spu_to_iscedf_narrow.csv` (38 disciplinas) |
 | `src/indicators.py` | Población y PIB pc (Banco Mundial) + IDH (PNUD HDR) |
-| `src/build_panel.py` | **Entry point**: consolida todo y exporta `data/processed/dataset.xlsx` (7 hojas, incluye `diccionario` y `codigos_iscedf`) |
+| `src/build_panel.py` | **Entry point** (mundo): consolida todo y exporta `data/processed/dataset.xlsx` (7 hojas, incluye `diccionario` y `codigos_iscedf`) |
 | `src/report.py` | Gráficos del informe (600 dpi → `output/`, gitignoreado), resumen de variables y ZIP exportable |
+| `src/argentina.py` | **Entry point** (Argentina): análisis nativo SPU (tipo univ., nivel, disciplina, ratio psico/ing, proxy egreso) → `output/argentina/` (600 dpi + Excel + ZIP) |
 
-Correr: `python src/build_panel.py` (usa cache; no re-descarga).
-Tests: `python -m pytest tests/ -q` (sin red). Notebook Colab:
-`notebooks/01_descarga_y_panel.ipynb` — NO editarlo a mano, se regenera
-con `python scripts/make_notebook.py` y se valida con nbclient.
+Correr mundo: `python src/build_panel.py` (usa cache; no re-descarga).
+Correr Argentina: `python src/argentina.py` (baja población del BM, cacheada).
+Tests: `python -m pytest tests/ -q` (sin red). **Dos notebooks Colab** — NO
+editarlos a mano, se regeneran con sus scripts y se validan con nbclient:
+`notebooks/00_profesiones_mundo.ipynb` (← `scripts/make_notebook.py`) y
+`notebooks/01_profesiones_argentina.ipynb` (← `scripts/make_notebook_arg.py`).
 
 ## Gotchas críticos (no re-descubrir)
 
@@ -53,6 +56,11 @@ con `python scripts/make_notebook.py` y se valida con nbclient.
 - Asimetría de ceros: Eurostat da 0 explícito para celdas sin egresados
   (~54%); ARG solo tiene filas con dato (ausencia ≠ 0). Fijar criterio
   explícito en promedios/shares por campo.
+- `src/argentina.py` (análisis nativo SPU): SIEMPRE excluye Pregrado y usa
+  solo EGRESADOS (salvo el proxy egreso/estudiantes). El período se toma del
+  archivo (`periodo(df)`), no se hardcodea 2014-2023. No se calcula "tasa de
+  deserción" (no hay ingresantes por cohorte): solo el proxy egresados/
+  estudiantes, explícitamente NO deserción. `VALOR` ya es entero en el xlsx.
 
 ## Estado y pendientes
 

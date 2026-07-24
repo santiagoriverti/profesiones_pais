@@ -12,20 +12,32 @@ Panel comparativo de egresados de educación superior por campo de estudio
 (ISCED-F 2013 nivel *narrow*, `F` + 3 dígitos) e indicadores de desarrollo,
 2014 en adelante. Europa vía Eurostat (SDMX 2.1) + Argentina vía SPU.
 
+Dos entregables, cada uno con su notebook Colab:
+- **`00_profesiones_mundo`** — panel ISCED-F comparativo entre países
+  (`src/build_panel.py`, `src/report.py`).
+- **`01_profesiones_argentina`** — análisis nativo de la SPU sin ISCED-F
+  (tipo de universidad, nivel académico, disciplina), vía `src/argentina.py`.
+
 ## Estado actual — checkpoint estable
 
 - **Panel**: 64.650 filas · 39 países (38 Eurostat narrow + ARG) · 2014-2024
   · niveles ED6/ED7/ED8 · 57 campos ISCED-F.
 - **Argentina**: 600 filas · 2014-2023 · 21 campos · 1.093.255 egresados
   acumulados (vía crosswalk SPU→ISCED-F).
-- **Tests**: 22 pasan (sin red). Auditoría de coherencia superada.
+- **Tests**: 31 pasan (sin red). Auditoría de coherencia superada.
+- **Argentina (SPU nativo)**: `src/argentina.py` + notebook
+  `01_profesiones_argentina` — tipo de universidad, nivel académico,
+  disciplina, ratio Psicología/Ingeniería y proxy de intensidad de egreso.
 - **Git**: `main`, sincronizado con `origin/main`.
 
 ## Cómo correr
 
 ```bash
-# Regenerar todo el dataset (usa cache en data/raw; NO re-descarga)
+# MUNDO: regenerar todo el dataset (usa cache en data/raw; NO re-descarga)
 python src/build_panel.py
+
+# ARGENTINA: análisis nativo SPU → output/argentina/ (gráficos 600 dpi + Excel + ZIP)
+python src/argentina.py
 
 # Forzar re-descarga desde las APIs (Eurostat/BM/PNUD)
 python -c "import sys; sys.path.insert(0,'src'); from build_panel import main; main(force=True)"
@@ -34,11 +46,12 @@ python -c "import sys; sys.path.insert(0,'src'); from build_panel import main; m
 python -m pytest tests/ -q
 
 # Gráficos del informe + ZIP: se generan corriendo el notebook de Colab
-# (notebooks/01_descarga_y_panel.ipynb), que llama a las funciones de
+# (notebooks/00_profesiones_mundo.ipynb), que llama a las funciones de
 # src/report.py. output/ está gitignoreado (~48 MB regenerables).
 
-# Regenerar el notebook de Colab (no editar el .ipynb a mano)
-python scripts/make_notebook.py
+# Regenerar los notebooks de Colab (no editar los .ipynb a mano)
+python scripts/make_notebook.py       # 00_profesiones_mundo
+python scripts/make_notebook_arg.py   # 01_profesiones_argentina
 ```
 
 > En Windows, si un script imprime caracteres no-ASCII (`→`, `—`), correr
@@ -102,6 +115,8 @@ está **versionado a propósito** (outputs usables sin correr el pipeline);
 | `src/spu_data.py` | Lee el Excel SPU y mapea niveles SPU→ISCED |
 | `src/crosswalk.py` | Aplica `spu_to_iscedf_narrow.csv` (38 disciplinas) |
 | `src/indicators.py` | Población y PIB pc (BM) + IDH (PNUD) |
-| `src/build_panel.py` | **Entry point**: consolida y exporta el dataset |
-| `src/report.py` | Gráficos 600 dpi, resumen de variables, ZIP |
-| `scripts/make_notebook.py` | Genera el notebook de Colab (no editar el .ipynb) |
+| `src/build_panel.py` | **Entry point mundo**: consolida y exporta el dataset |
+| `src/report.py` | Gráficos 600 dpi (mundo), resumen de variables, ZIP |
+| `src/argentina.py` | **Entry point Argentina**: análisis nativo SPU → `output/argentina/` |
+| `scripts/make_notebook.py` | Genera `00_profesiones_mundo.ipynb` (no editar el .ipynb) |
+| `scripts/make_notebook_arg.py` | Genera `01_profesiones_argentina.ipynb` (no editar el .ipynb) |
