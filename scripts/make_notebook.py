@@ -94,7 +94,9 @@ IDH del PNUD) y escribe en `data/processed/`:
 - `coverage.csv` (cobertura narrow vs broad por país)
 - **`dataset.xlsx`** con todo el dataset procesado (hojas: `panel`,
   `indicadores`, `panel_indicadores` — con egresados cada mil habitantes —,
-  `cobertura` y `crosswalk_spu`)."""))
+  `cobertura`, `crosswalk_spu`, `codigos_iscedf`, `diccionario` y las dos
+  hojas de clasificación del ratio de orientación —`clas_arg` y `clas_eur`,
+  ver más abajo)."""))
 
 cells.append(code("""from build_panel import main as build_panel_main
 
@@ -248,6 +250,28 @@ print(f"Ranking {anio_ref}: {len(rank)} países | ARG en el puesto "
       f"{int(rank.loc[rank['iso3'] == 'ARG', 'ranking'].iloc[0])}")
 rank"""))
 
+cells.append(md("""### ¿Qué carreras entran al ratio de orientación?
+
+Las dos hojas `clas_arg` y `clas_eur` del `dataset.xlsx` documentan, para
+cada base, qué carreras aportan al **numerador** (`hum_soc`: humanidades y
+ciencias sociales, F02 + F03) y cuáles al **denominador** (`cien_tec_ing`:
+ciencia, tecnología e ingeniería, F05 + F06 + F07). Una carrera sin marca
+en ninguna columna no interviene en el ratio (educación, negocios/derecho,
+salud, agro y servicios).
+
+- **`clas_arg`** — las disciplinas de la SPU (base Argentina): cada una se
+  clasifica por el campo ISCED-F al que la lleva el crosswalk.
+- **`clas_eur`** — todos los campos ISCED-F *narrow* (base Europa/Eurostat),
+  marcados por su código *broad*."""))
+
+cells.append(code("""from build_panel import (clasificacion_orientacion_arg,
+                        clasificacion_orientacion_eur)
+
+print("clas_arg — disciplinas SPU (base Argentina) que entran al ratio:")
+display(clasificacion_orientacion_arg())
+print("clas_eur — campos ISCED-F (base Europa) que entran al ratio:")
+display(clasificacion_orientacion_eur())"""))
+
 cells.append(md("""## Resumen de variables (para el informe)
 
 Definición y estadísticos de cada variable del dataset consolidado."""))
@@ -274,7 +298,9 @@ cells.append(md("""## Salidas
 
 - `data/processed/dataset.xlsx` — dataset completo: hojas `panel`,
   `indicadores`, `panel_indicadores` (egresados cada mil habitantes),
-  `cobertura`, `crosswalk_spu`, `codigos_iscedf` y **`diccionario`**
+  `cobertura`, `crosswalk_spu`, `codigos_iscedf`, **`diccionario`** y las
+  dos hojas de clasificación del ratio de orientación **`clas_arg`** y
+  **`clas_eur`**
 - `data/processed/*.parquet` y `coverage.csv` — versiones para análisis
 - `output/profesiones_pais_export.zip` — gráficos 600 dpi + Excel, listo
   para el informe

@@ -1,10 +1,12 @@
 """Tests de etiquetas ISCED-F, diccionario y resumen (sin red)."""
 import pandas as pd
 
-from build_panel import data_dictionary
+from build_panel import (clasificacion_orientacion_arg,
+                         clasificacion_orientacion_eur, data_dictionary)
 from eurostat_api import is_narrow
-from report import (disciplina_codes, load_field_labels,
-                    tabla_ratio_orientacion, variable_summary)
+from report import (BROAD_DURAS, BROAD_HUMANIDADES, disciplina_codes,
+                    load_field_labels, tabla_ratio_orientacion,
+                    variable_summary)
 
 NFD = {"F000", "F020", "F030", "F040", "F050",
        "F070", "F080", "F090", "F100"}
@@ -42,6 +44,38 @@ def test_tabla_ratio_orientacion():
     assert abs(t.iloc[0]["ratio_hum_por_dura"] - 2.0) < 1e-6
     assert t.iloc[-1]["iso3"] == "BBB"
     assert abs(t.iloc[-1]["ratio_hum_por_dura"] - 0.25) < 1e-6
+
+
+def _marca_coherente(df):
+    """hum_soc/cien_tec_ing deben coincidir con el prefijo broad del código,
+    exactamente como agrupa tabla_ratio_orientacion. Excluyentes entre sí."""
+    for _, r in df.iterrows():
+        broad = r["iscedf_narrow"][:3]
+        assert r["hum_soc"] == ("x" if broad in BROAD_HUMANIDADES else "")
+        assert r["cien_tec_ing"] == ("x" if broad in BROAD_DURAS else "")
+        assert not (r["hum_soc"] == "x" and r["cien_tec_ing"] == "x")
+
+
+def test_clas_eur_lista_todos_los_campos_y_marca_bien():
+    ce = clasificacion_orientacion_eur()
+    assert len(ce) == 57                       # todos los campos ISCED-F narrow
+    assert {"hum_soc", "cien_tec_ing"} <= set(ce.columns)
+    _marca_coherente(ce)
+    # F031 (cs. sociales, incluye Psicología) numerador; F071 (ingeniería) denominador
+    assert ce.set_index("iscedf_narrow").loc["F031", "hum_soc"] == "x"
+    assert ce.set_index("iscedf_narrow").loc["F071", "cien_tec_ing"] == "x"
+
+
+def test_clas_arg_lista_todas_las_disciplinas_y_marca_bien():
+    ca = clasificacion_orientacion_arg()
+    assert len(ca) == 38                       # todas las disciplinas SPU
+    assert {"spu_disciplina", "hum_soc", "cien_tec_ing"} <= set(ca.columns)
+    _marca_coherente(ca)
+    m = ca.set_index("spu_disciplina")
+    assert m.loc["Psicología", "hum_soc"] == "x"           # F031 → numerador
+    assert m.loc["Ingeniería", "cien_tec_ing"] == "x"      # F071 → denominador
+    assert m.loc["Medicina", "hum_soc"] == ""              # F091 → fuera del ratio
+    assert m.loc["Medicina", "cien_tec_ing"] == ""
 
 
 def test_diccionario_estructura():

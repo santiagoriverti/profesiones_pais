@@ -91,21 +91,25 @@ df.head()"""))
 cells.append(md("""## 1. Tipo de universidad (Privado / Pública)
 
 Tabla de detalle (egresados, índice base 100 y participación por año),
-evolución base 100 y composición del último año."""))
+evolución **en niveles absolutos** (privadas y públicas en el mismo eje,
+que tienen escala parecida: **azul = Privado, naranja = Pública**) y
+composición del último año (mismos colores)."""))
 
 cells.append(code("""t_tipo = a.tabla_tipo_univ(eg)
 display(t_tipo)
-a.fig_tipo_univ_base100(t_tipo); plt.show()
+a.fig_tipo_univ_nivel(t_tipo); plt.show()
 a.fig_tipo_univ_torta(t_tipo); plt.show()"""))
 
 cells.append(md("""## 2. Nivel académico (Grado / Posgrado)
 
-Pregrado queda excluido. Tabla de detalle, evolución base 100, torta del
-último año y —además— egresados de **Grado cada mil habitantes**."""))
+Pregrado queda excluido. Tabla de detalle, evolución **en niveles absolutos**
+(Grado y Posgrado en **ejes Y independientes** por su diferencia de escala
+—Grado ~5× Posgrado—, cada serie con el color de su eje), torta del último
+año y —además— egresados de **Grado cada mil habitantes**."""))
 
 cells.append(code("""t_nivel = a.tabla_nivel_academ(eg)
 display(t_nivel)
-a.fig_nivel_base100(t_nivel); plt.show()
+a.fig_nivel_nivel(t_nivel); plt.show()
 a.fig_nivel_torta(t_nivel); plt.show()
 
 t_grado_mil = a.tabla_grado_por_mil(eg, pop)
@@ -116,9 +120,10 @@ cells.append(md("""## 3. Disciplina específica (DISCIP_ESPECIF)
 
 Tabla de detalle sobre **todas** las disciplinas (egresados, participación y
 ranking por año) más la matriz disciplina × año. Gráficos: top 10 por año y
-comparativo del top 10 del primer vs. último año. Finalmente, la evolución de
-la relación **egresados de Psicología por cada egresado de Ingeniería**
-(por año y global de todo el período)."""))
+comparativo del top 10 entre el **trienio inicial (2014-2016)** y el **trienio
+final (2021-2023)** —suma de egresados de cada período—. Finalmente, la
+evolución de la relación **egresados de Psicología por cada egresado de
+Ingeniería** (por año y global de todo el período)."""))
 
 cells.append(code("""t_disc = a.tabla_disciplinas(eg)
 print(f"{t_disc['disciplina'].nunique()} disciplinas | detalle (primeras filas):")

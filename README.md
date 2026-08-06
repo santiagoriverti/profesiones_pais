@@ -85,7 +85,10 @@ Salidas en `data/processed/`:
 - **`dataset.xlsx`** — todo el dataset procesado en un solo Excel, con hojas
   `panel`, `indicadores`, `panel_indicadores` (incluye egresados cada mil
   habitantes), `cobertura`, `crosswalk_spu`, `codigos_iscedf` (etiquetas
-  ES/EN de cada campo) y `diccionario` (definición y fuente de cada variable)
+  ES/EN de cada campo), `diccionario` (definición y fuente de cada variable)
+  y `clas_arg` / `clas_eur` (qué carreras de cada base —Argentina/Europa—
+  entran al numerador `hum_soc` o al denominador `cien_tec_ing` del ratio de
+  orientación del gráfico `06_ranking_orientacion`)
 
 El notebook además genera `output/` (gitignoreado, vía `src/report.py`):
 todos los gráficos a **600 dpi** — incluyendo la evolución de cada campo en

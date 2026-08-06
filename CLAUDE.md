@@ -18,7 +18,7 @@ esquema de datos, pendientes y gaps — punto de entrada único).
 | `src/spu_data.py` | Lee `data/external/profesiones_arg.xlsx` y mapea niveles SPU → ISCED |
 | `src/crosswalk.py` | Aplica `data/reference/spu_to_iscedf_narrow.csv` (38 disciplinas) |
 | `src/indicators.py` | Población y PIB pc (Banco Mundial) + IDH (PNUD HDR) |
-| `src/build_panel.py` | **Entry point** (mundo): consolida todo y exporta `data/processed/dataset.xlsx` (7 hojas, incluye `diccionario` y `codigos_iscedf`) |
+| `src/build_panel.py` | **Entry point** (mundo): consolida todo y exporta `data/processed/dataset.xlsx` (9 hojas, incluye `diccionario`, `codigos_iscedf` y `clas_arg`/`clas_eur` con la clasificación del ratio de orientación) |
 | `src/report.py` | Gráficos del informe (600 dpi → `output/`, gitignoreado), resumen de variables y ZIP exportable |
 | `src/argentina.py` | **Entry point** (Argentina): análisis nativo SPU (tipo univ., nivel, disciplina, ratio psico/ing, proxy egreso) → `output/argentina/` (600 dpi + Excel + ZIP) |
 
@@ -66,7 +66,19 @@ editarlos a mano, se regeneran con sus scripts y se validan con nbclient:
 - Ranking de orientación (NB00, `report.tabla_ratio_orientacion`): razón
   broad humanidades+cs sociales (F02+F03, incluye Psicología, que narrow no
   aísla) / ciencias duras+tec (F05+F06+F07). Distinto del ratio exacto
-  Psicología/Ingeniería del NB01 (disciplinas SPU).
+  Psicología/Ingeniería del NB01 (disciplinas SPU). La composición del ratio
+  está documentada en dos hojas del Excel (`build_panel.clasificacion_orientacion_arg`
+  / `_eur`): `clas_arg` (38 disciplinas SPU) y `clas_eur` (57 campos ISCED-F),
+  con columnas `hum_soc`/`cien_tec_ing` marcadas por el prefijo broad. Ojo:
+  los residuales F0x0 cuentan por su prefijo (igual que el ratio), aunque
+  sean `tipo=no_definido`.
+- NB01 (`src/argentina.py`): los gráficos 01 y 03 son **niveles absolutos**,
+  NO base 100 (la columna `base100` sigue en las tablas del Excel). `01_tipo_univ_nivel`
+  (Privado/Pública, mismo eje) y `03_nivel_academ_nivel` (Grado/Posgrado, doble
+  eje por escala ~5×) fueron **renombrados** (antes `*_base100`). Colores fijos
+  `COLOR_TIPO`/`COLOR_NIVEL` (azul/naranja) para que líneas y tortas coincidan.
+  `07_disciplinas_top10_comparativo` compara **suma de trienios** (primeros 3
+  años vs últimos 3: 2014-2016 vs 2021-2023), no primer vs último año.
 
 ## Estado y pendientes
 

@@ -6,7 +6,7 @@ Detalle de la metodología empleada en los dos notebooks del proyecto:
 su forma de citar, ver [fuentes_datos.md](fuentes_datos.md); para el registro
 fechado de decisiones, [decisiones.md](decisiones.md).
 
-Última actualización: 2026-07-24.
+Última actualización: 2026-08-06.
 
 ---
 
@@ -59,9 +59,11 @@ la SPU).
 5. **Indicadores de desarrollo** (`src/indicators.py`): población y PIB per
    cápita del Banco Mundial e IDH del PNUD, unidos por país-año.
 6. **Exportación** a `data/processed/`: `panel.parquet`, `indicators.parquet`,
-   `coverage.csv` y `dataset.xlsx` (7 hojas: panel, indicadores,
+   `coverage.csv` y `dataset.xlsx` (9 hojas: panel, indicadores,
    panel_indicadores con egresados cada mil habitantes, cobertura,
-   crosswalk_spu, codigos_iscedf y diccionario).
+   crosswalk_spu, codigos_iscedf, diccionario y las dos hojas de
+   clasificación del ratio de orientación —`clas_arg` y `clas_eur`, ver
+   la sección del ranking).
 
 ### Crosswalk SPU → ISCED-F (Argentina)
 
@@ -134,6 +136,20 @@ ratio =  egresados en humanidades y ciencias sociales (F02 + F03)
 - El ratio **exacto** Psicología/Ingeniería a nivel disciplina existe en el
   notebook 01 (datos SPU, que sí las separan).
 
+**Hojas `clas_arg` y `clas_eur` (qué carreras entran al ratio).** El
+`dataset.xlsx` documenta la composición del ratio en dos hojas, una por base,
+con columnas `hum_soc` (marca `x` = numerador, F02 + F03) y `cien_tec_ing`
+(marca `x` = denominador, F05 + F06 + F07):
+
+- **`clas_eur`**: los 57 campos ISCED-F *narrow* (base Europa/Eurostat),
+  marcados por su código *broad*. Los residuales F0x0 ("not further defined")
+  también cuentan por su prefijo, igual que en `tabla_ratio_orientacion`.
+- **`clas_arg`**: las 38 disciplinas de la SPU (base Argentina), clasificadas
+  por el campo ISCED-F al que las lleva el crosswalk (13 al numerador, 12 al
+  denominador). Las que no llevan marca no intervienen en el ratio: educación
+  (F011), negocios/derecho (F04), salud (F09), agro y veterinaria (F08) y
+  servicios (F10).
+
 ### Limitaciones
 
 - Eurostat solo cubre países que reportan a la recolección UOE (UE + EFTA +
@@ -193,18 +209,24 @@ egresados (≈ 1,10 millón) supera al del panel ISCED (≈ 1,09 millón).
 ### Análisis y gráficos
 
 **1. Tipo de universidad (Privado / Pública).** Tabla de detalle con egresados,
-índice base 100 y participación por año; gráfico de evolución base 100 (años en
-el eje) y torta de composición del último año.
+índice base 100 y participación por año; gráfico de evolución **en niveles
+absolutos** (privadas y públicas en el mismo eje, escala parecida; **azul =
+Privado, naranja = Pública**) y torta de composición del último año con los
+mismos colores (`01_tipo_univ_nivel`, `02_tipo_univ_torta`).
 
 **2. Nivel académico (Grado / Posgrado).** Con Pregrado excluido. Tabla de
-detalle (base 100 y participación), evolución base 100, torta del último año y
-**egresados de Grado cada mil habitantes** (barras por año, usando la población
-del Banco Mundial).
+detalle (base 100 y participación), evolución **en niveles absolutos** con
+**un eje Y por categoría** (Grado y Posgrado difieren ~5× en escala, así que
+cada serie va en su propio eje con el color de su eje; `03_nivel_academ_nivel`),
+torta del último año y **egresados de Grado cada mil habitantes** (barras por
+año, usando la población del Banco Mundial).
 
 **3. Disciplina específica (37 disciplinas).** Tabla de detalle sobre **todas**
 las disciplinas (egresados, participación y ranking dentro de cada año) y matriz
 disciplina × año. Gráficos: **top 10 por año** (*small multiples*, un panel por
-año) y **comparativo del top 10** del primer vs. último año. Además, la
+año) y **comparativo del top 10** entre el **trienio inicial** (suma 2014-2016)
+y el **trienio final** (suma 2021-2023), tomando los tres primeros y los tres
+últimos años de la serie (`07_disciplinas_top10_comparativo`). Además, la
 evolución de la **relación Psicología/Ingeniería** (por año y valor global),
 que también se incluye en la tabla de detalle.
 

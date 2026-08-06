@@ -90,10 +90,12 @@ def test_proxy_egre_estu(df):
 
 def test_figuras_devuelven_figure(eg):
     t_tipo = a.tabla_tipo_univ(eg)
+    t_nivel = a.tabla_nivel_academ(eg)
     t_disc = a.tabla_disciplinas(eg)
     t_ratio = a.tabla_ratio_psico_ing(eg)
-    assert isinstance(a.fig_tipo_univ_base100(t_tipo), Figure)
+    assert isinstance(a.fig_tipo_univ_nivel(t_tipo), Figure)   # niveles, mismo eje
     assert isinstance(a.fig_tipo_univ_torta(t_tipo), Figure)
+    assert isinstance(a.fig_nivel_nivel(t_nivel), Figure)      # niveles, doble eje
     assert isinstance(a.fig_top10_por_anio(t_disc), Figure)
     assert isinstance(a.fig_top10_comparativo(t_disc), Figure)
     assert isinstance(a.fig_ratio_psico_ing(t_ratio), Figure)

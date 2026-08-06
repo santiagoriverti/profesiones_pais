@@ -45,6 +45,42 @@ Grado, maestría y doctorado. Se excluye ISCED 5 (pregrado/ciclo corto).
 - "Salud Pública" → F091 (media): aparece en el Excel real de la SPU.
 - "Otras Ciencias Humanas" se mantiene aunque este Excel no la use.
 
+## 2026-08-06 — Hojas de clasificación del ratio y ajustes de gráficos (NB01)
+
+Pedido del usuario. **No cambia el panel ni ningún dato**; solo agrega
+documentación al Excel y reestiliza cuatro gráficos del notebook 01.
+
+- **`dataset.xlsx` — hojas `clas_arg` y `clas_eur`** (notebook 00): documentan
+  qué carreras aportan al ratio de orientación del gráfico
+  `06_ranking_orientacion`, con columnas `hum_soc` (numerador, F02+F03) y
+  `cien_tec_ing` (denominador, F05+F06+F07), marcadas por el prefijo *broad*
+  del código ISCED-F —exactamente como agrupa `tabla_ratio_orientacion`—.
+  `clas_eur` lista los 57 campos ISCED-F narrow (base Europa; 11 numerador,
+  15 denominador); `clas_arg` las 38 disciplinas SPU (base Argentina; 13
+  numerador, 12 denominador), clasificadas por el campo al que las lleva el
+  crosswalk. Las 13 disciplinas SPU sin marca (educación F011, negocios/
+  derecho F04, salud F09, agro/veterinaria F08, servicios F10) no intervienen
+  en el ratio. Los residuales F0x0 ("not further defined") cuentan por su
+  prefijo, coherente con el ratio. Funciones
+  `build_panel.clasificacion_orientacion_arg()` / `_eur()`; grupos broad
+  importados de `report.BROAD_HUMANIDADES` / `BROAD_DURAS` (fuente única).
+- **Gráficos del notebook 01** (`src/argentina.py`):
+  - `01`/`03` pasan de **base 100 a niveles absolutos** (egresados). Tipo de
+    universidad (Privado ~34-47k / Pública ~51-80k, ratio ~2,3×) va en el
+    **mismo eje**; nivel académico (Grado ~80-107k / Posgrado ~13-21k, ratio
+    ~5×) va con **doble eje** (una serie por eje, cada una con su color).
+    Archivos **renombrados**: `01_tipo_univ_base100`→`01_tipo_univ_nivel`,
+    `03_nivel_base100`→`03_nivel_academ_nivel`. La columna `base100` sigue en
+    las tablas del Excel.
+  - `02_tipo_univ_torta`: **color fijo azul = Privado, naranja = Pública**
+    (mapas `COLOR_TIPO`/`COLOR_NIVEL`), coincide con el gráfico 01.
+  - `07_disciplinas_top10_comparativo`: compara la **suma del trienio inicial
+    (2014-2016)** vs. la **suma del trienio final (2021-2023)** —los tres
+    primeros y tres últimos años de la serie— en vez de primer vs. último año.
+- **Tests**: +2 en `test_report.py` (coherencia de `clas_arg`/`clas_eur` con
+  el ratio) y `test_argentina.py` actualizado a los nombres nuevos; 34 pasan.
+  Ambos notebooks revalidados end-to-end con nbclient.
+
 ## 2026-07-24 — Ranking de orientación y ajustes de gráficos
 
 - **Ranking humanístico vs. científico-técnico (notebook 00)**: como ISCED-F

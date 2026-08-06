@@ -6,7 +6,10 @@ Salidas en ``data/processed/``:
 - ``coverage.csv``: cobertura narrow vs broad por país (Eurostat)
 - ``dataset.xlsx``: todo lo anterior en un solo Excel (hojas: panel,
   indicadores, panel_indicadores con egresados cada mil habitantes,
-  cobertura y crosswalk)
+  cobertura, crosswalk_spu, codigos_iscedf, diccionario y las dos hojas
+  de clasificación del ratio de orientación del gráfico
+  06_ranking_orientacion: clas_arg (disciplinas SPU) y clas_eur (campos
+  ISCED-F))
 
 Fuentes:
 - Eurostat ``educ_uoe_grad02`` (unit=NR, conteos absolutos) para los
@@ -95,10 +98,82 @@ def data_dictionary() -> pd.DataFrame:
         ("crosswalk_spu", "confianza",
          "Calidad del mapeo SPU→ISCED-F: alta / media / baja "
          "(baja requiere revisión manual; ver columna nota)", ""),
+        ("clas_arg", "hum_soc",
+         "Marca 'x' si la disciplina SPU aporta al numerador (humanidades y "
+         "cs. sociales, F02+F03) del ratio de orientación del gráfico "
+         "06_ranking_orientacion", "elaboración propia"),
+        ("clas_arg", "cien_tec_ing",
+         "Marca 'x' si la disciplina SPU aporta al denominador (ciencia, "
+         "tecnología e ingeniería, F05+F06+F07) del ratio de orientación",
+         "elaboración propia"),
+        ("clas_eur", "hum_soc",
+         "Marca 'x' si el campo ISCED-F aporta al numerador (humanidades y "
+         "cs. sociales, F02+F03) del ratio de orientación del gráfico "
+         "06_ranking_orientacion", "elaboración propia"),
+        ("clas_eur", "cien_tec_ing",
+         "Marca 'x' si el campo ISCED-F aporta al denominador (ciencia, "
+         "tecnología e ingeniería, F05+F06+F07) del ratio de orientación",
+         "elaboración propia"),
     ]
     return pd.DataFrame(
         filas, columns=["hoja", "variable", "definicion", "fuente"]
     )
+
+
+# Grupos broad del ratio de orientación (gráfico 06_ranking_orientacion).
+# Se importan desde report.py para no duplicar la definición: numerador =
+# humanidades y cs. sociales (F02+F03); denominador = ciencia, tecnología e
+# ingeniería (F05+F06+F07). Ambas hojas de clasificación las usan.
+def _grupos_orientacion() -> tuple[tuple[str, ...], tuple[str, ...]]:
+    from report import BROAD_HUMANIDADES, BROAD_DURAS
+    return BROAD_HUMANIDADES, BROAD_DURAS
+
+
+def clasificacion_orientacion_eur() -> pd.DataFrame:
+    """Hoja ``clas_eur``: qué campos ISCED-F (base Europa/Eurostat) entran al
+    ratio de orientación del gráfico 06_ranking_orientacion.
+
+    El ratio agrupa cada campo *narrow* por su código *broad* (los primeros
+    3 caracteres): numerador = humanidades y cs. sociales (F02 + F03),
+    denominador = ciencia, tecnología e ingeniería (F05 + F06 + F07). Se
+    listan **todos** los campos ISCED-F; los que no llevan marca en ninguna
+    columna no intervienen en el ratio (educación, negocios/derecho, salud,
+    agro y servicios). Los residuales F0x0 ("not further defined") también
+    cuentan por su prefijo broad, igual que en ``tabla_ratio_orientacion``.
+    """
+    hum, duras = _grupos_orientacion()
+    labels = pd.read_csv(
+        PROJECT_ROOT / "data" / "reference" / "iscedf_narrow_labels.csv"
+    )
+    out = labels[["iscedf_narrow", "label_es", "label_en", "tipo"]].copy()
+    broad = out["iscedf_narrow"].str[:3]
+    out.insert(1, "broad", broad)
+    out["hum_soc"] = ["x" if b in hum else "" for b in broad]
+    out["cien_tec_ing"] = ["x" if b in duras else "" for b in broad]
+    return out
+
+
+def clasificacion_orientacion_arg() -> pd.DataFrame:
+    """Hoja ``clas_arg``: qué disciplinas de la SPU (base Argentina) entran al
+    ratio de orientación del gráfico 06_ranking_orientacion.
+
+    Argentina entra al panel vía el crosswalk SPU→ISCED-F, así que cada
+    disciplina se clasifica por el código *broad* del campo ISCED-F al que
+    mapea: numerador = humanidades y cs. sociales (F02 + F03), denominador =
+    ciencia, tecnología e ingeniería (F05 + F06 + F07). Se listan **todas**
+    las disciplinas SPU; las que no llevan marca (p. ej. Medicina→F091,
+    Derecho→F042, Economía y Administración→F041, Educación→F011) no
+    intervienen en el ratio.
+    """
+    hum, duras = _grupos_orientacion()
+    cw = load_crosswalk()[
+        ["spu_disciplina", "spu_rama", "iscedf_narrow", "iscedf_label"]
+    ].copy()
+    broad = cw["iscedf_narrow"].str[:3]
+    cw.insert(4, "broad", broad)
+    cw["hum_soc"] = ["x" if b in hum else "" for b in broad]
+    cw["cien_tec_ing"] = ["x" if b in duras else "" for b in broad]
+    return cw
 
 
 def build_eurostat_panel(force: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -221,6 +296,10 @@ def main(force: bool = False) -> pd.DataFrame:
         load_crosswalk().to_excel(writer, sheet_name="crosswalk_spu", index=False)
         labels.to_excel(writer, sheet_name="codigos_iscedf", index=False)
         data_dictionary().to_excel(writer, sheet_name="diccionario", index=False)
+        clasificacion_orientacion_arg().to_excel(
+            writer, sheet_name="clas_arg", index=False)
+        clasificacion_orientacion_eur().to_excel(
+            writer, sheet_name="clas_eur", index=False)
 
     narrow = coverage[coverage["cobertura"] == "narrow"]["iso3"].tolist()
     solo_broad = coverage[coverage["cobertura"] == "solo_broad"]["iso3"].tolist()

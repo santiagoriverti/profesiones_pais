@@ -5,7 +5,7 @@
 > [docs/metodologia.md](metodologia.md) (metodología de ambos notebooks),
 > [docs/decisiones.md](decisiones.md) (registro fechado de decisiones) y
 > [docs/fuentes_datos.md](fuentes_datos.md) (estructura verificada de cada
-> fuente). Última actualización: **2026-07-24**.
+> fuente). Última actualización: **2026-08-06**.
 
 ## Qué es
 
@@ -26,11 +26,30 @@ Dos entregables, cada uno con su notebook Colab:
   · niveles ED6/ED7/ED8 · 57 campos ISCED-F.
 - **Argentina**: 600 filas · 2014-2023 · 21 campos · 1.093.255 egresados
   acumulados (vía crosswalk SPU→ISCED-F).
-- **Tests**: 32 pasan (sin red). Auditoría de coherencia superada.
+- **Tests**: 34 pasan (sin red). Auditoría de coherencia superada.
 - **Argentina (SPU nativo)**: `src/argentina.py` + notebook
   `01_profesiones_argentina` — tipo de universidad, nivel académico,
   disciplina, ratio Psicología/Ingeniería y proxy de intensidad de egreso.
 - **Git**: `main`, sincronizado con `origin/main`.
+
+### Cambios 2026-08-06 (pedido del usuario)
+
+- **Notebook 00 — `dataset.xlsx`**: dos hojas nuevas que documentan qué
+  carreras entran al ratio del gráfico `06_ranking_orientacion`, con columnas
+  `hum_soc` (numerador, F02+F03) y `cien_tec_ing` (denominador, F05+F06+F07):
+  `clas_eur` (57 campos ISCED-F, base Europa) y `clas_arg` (38 disciplinas
+  SPU, base Argentina). Generadas por `build_panel.clasificacion_orientacion_eur()`
+  y `..._arg()`.
+- **Notebook 01 — gráficos** (`src/argentina.py`):
+  - `01_tipo_univ_nivel` (ex `01_tipo_univ_base100`): niveles absolutos, no
+    base 100; Privado y Pública en el mismo eje. **Renombrado** el archivo.
+  - `02_tipo_univ_torta`: color fijo **azul = Privado, naranja = Pública**
+    (coincide con el gráfico 01).
+  - `03_nivel_academ_nivel` (ex `03_nivel_base100`): niveles absolutos con
+    **doble eje** (Grado izq., Posgrado der.) por su diferencia de escala
+    ~5×. **Renombrado** el archivo.
+  - `07_disciplinas_top10_comparativo`: suma del **trienio 2014-2016** vs.
+    suma del **trienio 2021-2023** (antes 2014 vs 2023).
 
 ## Cómo correr
 
@@ -66,7 +85,7 @@ python scripts/make_notebook_arg.py   # 01_profesiones_argentina
 | `panel.parquet` | iso3, year, isced_level, iscedf_narrow, graduates, source |
 | `indicators.parquet` | iso3, year, population, gdp_pc_usd, gdp_pc_ppp, hdi |
 | `coverage.csv` | cobertura narrow vs broad por país (Eurostat) |
-| `dataset.xlsx` | 7 hojas: panel, indicadores, panel_indicadores (grad_per_1000), cobertura, crosswalk_spu, codigos_iscedf, diccionario |
+| `dataset.xlsx` | 9 hojas: panel, indicadores, panel_indicadores (grad_per_1000), cobertura, crosswalk_spu, codigos_iscedf, diccionario, clas_arg, clas_eur |
 
 `source` ∈ {`eurostat_educ_uoe_grad02`, `spu_crosswalk`}. `data/processed/`
 está **versionado a propósito** (outputs usables sin correr el pipeline);

@@ -35,6 +35,10 @@ GRAFICOS_DIR = OUTPUT_DIR / "graficos"
 DPI = 600
 PALETA = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100",
           "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
+# Colores fijos por categoría: garantizan que las líneas y las tortas usen el
+# mismo color para la misma categoría entre gráficos (azul / naranja).
+COLOR_TIPO = {"Privado": PALETA[0], "Pública": PALETA[1]}
+COLOR_NIVEL = {"Grado": PALETA[0], "Posgrado": PALETA[1]}
 PREGRADO = "Pregrado"
 COL_CATEGORIA = {"TIPO_UNIV": "tipo_univ", "NIVEL_ACADEM": "nivel_academ"}
 
@@ -118,20 +122,25 @@ def _estilo(ax):
     ax.set_axisbelow(True)
 
 
-def _fig_base100(detalle: pd.DataFrame, titulo: str = ""):
-    """Líneas de evolución base 100 por categoría (sin título; años en 45°)."""
+def _fig_niveles_single(detalle: pd.DataFrame, colores: dict):
+    """Líneas de egresados en **nivel absoluto** por categoría, mismo eje Y.
+
+    Para categorías de escala parecida (p. ej. universidades privadas vs.
+    públicas). Sin título (el contexto va en el markdown del notebook);
+    años en 45°. ``colores`` mapea categoría → color.
+    """
     fig, ax = plt.subplots(figsize=(9, 4.6))
-    for color, (cat, sub) in zip(PALETA, detalle.groupby("categoria")):
-        sub = sub.sort_values("anio")
-        ax.plot(sub["anio"], sub["base100"], color=color, lw=2, label=cat,
-                marker="o", ms=3)
-        ax.annotate(cat, (sub["anio"].iloc[-1], sub["base100"].iloc[-1]),
-                    xytext=(6, 0), textcoords="offset points", va="center",
-                    fontsize=9, color="#444444")
-    primer = int(detalle["anio"].min())
     anios = sorted(detalle["anio"].unique())
-    ax.axhline(100, color="#bbbbbb", lw=1, ls="--")
-    ax.set_ylabel(f"Índice base 100 = {primer}")
+    for cat, sub in detalle.groupby("categoria"):
+        sub = sub.sort_values("anio")
+        color = colores.get(cat, PALETA[0])
+        ax.plot(sub["anio"], sub["egresados"], color=color, lw=2, label=cat,
+                marker="o", ms=3)
+        ax.annotate(cat, (sub["anio"].iloc[-1], sub["egresados"].iloc[-1]),
+                    xytext=(6, 0), textcoords="offset points", va="center",
+                    fontsize=9, color=color)
+    ax.set_ylabel("Egresados")
+    ax.set_ylim(bottom=0)
     ax.set_xticks(anios)
     ax.set_xticklabels(anios, rotation=45, ha="right")
     ax.legend(frameon=False, fontsize=8, loc="upper left")
@@ -140,14 +149,62 @@ def _fig_base100(detalle: pd.DataFrame, titulo: str = ""):
     return fig
 
 
-def _fig_torta_ultimo(detalle: pd.DataFrame, titulo: str = ""):
-    """Torta de la composición del último año (sin título)."""
+def _fig_niveles_dual(detalle: pd.DataFrame, colores: dict):
+    """Líneas de egresados en **nivel absoluto** con un eje Y por categoría.
+
+    Para dos categorías de escala muy distinta (p. ej. Grado vs. Posgrado):
+    la de mayor volumen va al eje izquierdo y la otra al derecho, cada una
+    con el color de su eje. Los ejes son **independientes** (no comparables
+    en altura); sirven para leer la evolución de cada serie. Sin título;
+    años en 45°.
+    """
+    totales = (detalle.groupby("categoria")["egresados"].sum()
+               .sort_values(ascending=False))
+    cats = list(totales.index)
+    if len(cats) != 2:
+        raise ValueError("_fig_niveles_dual espera exactamente 2 categorías")
+    anios = sorted(detalle["anio"].unique())
+    fig, ax_izq = plt.subplots(figsize=(9, 4.6))
+    ax_der = ax_izq.twinx()
+    lineas = []
+    for eje, cat in zip((ax_izq, ax_der), cats):
+        sub = detalle[detalle["categoria"] == cat].sort_values("anio")
+        color = colores.get(cat, PALETA[0])
+        ln, = eje.plot(sub["anio"], sub["egresados"], color=color, lw=2,
+                       marker="o", ms=3, label=cat)
+        lineas.append(ln)
+        eje.set_ylabel(f"Egresados — {cat}", color=color)
+        eje.tick_params(axis="y", labelcolor=color)
+        eje.set_ylim(bottom=0)
+    ax_izq.set_xticks(anios)
+    ax_izq.set_xticklabels(anios, rotation=45, ha="right")
+    ax_izq.legend(lineas, [ln.get_label() for ln in lineas],
+                  frameon=False, fontsize=8, loc="upper left")
+    for eje in (ax_izq, ax_der):
+        eje.spines["top"].set_visible(False)
+    ax_izq.grid(True, axis="y", color="#e6e6e6", linewidth=0.7)
+    ax_izq.set_axisbelow(True)
+    fig.tight_layout()
+    return fig
+
+
+def _fig_torta_ultimo(detalle: pd.DataFrame, colores: dict | None = None):
+    """Torta de la composición del último año (sin título).
+
+    Si se pasa ``colores`` (categoría → color) se respeta ese mapa para que
+    la torta coincida con el gráfico de líneas; si no, usa la paleta por
+    orden de volumen.
+    """
     ult = int(detalle["anio"].max())
     d = detalle[detalle["anio"] == ult].sort_values("egresados", ascending=False)
+    if colores is not None:
+        cols = [colores.get(c, PALETA[i]) for i, c in enumerate(d["categoria"])]
+    else:
+        cols = PALETA[: len(d)]
     fig, ax = plt.subplots(figsize=(6.4, 5))
     ax.pie(d["egresados"], labels=d["categoria"], autopct="%1.1f%%",
            startangle=90, counterclock=False,
-           colors=PALETA[: len(d)],
+           colors=cols,
            wedgeprops={"edgecolor": "white", "linewidth": 1.5},
            textprops={"fontsize": 9})
     fig.tight_layout()
@@ -161,13 +218,16 @@ def tabla_tipo_univ(eg: pd.DataFrame) -> pd.DataFrame:
     return _detalle_categoria(eg, "TIPO_UNIV")
 
 
-def fig_tipo_univ_base100(detalle: pd.DataFrame):
-    return _fig_base100(
-        detalle, "Egresados por tipo de universidad — evolución base 100")
+def fig_tipo_univ_nivel(detalle: pd.DataFrame):
+    """Evolución de egresados por tipo de universidad, en niveles absolutos
+    (privadas y públicas en el mismo eje: azul = Privado, naranja = Pública)."""
+    return _fig_niveles_single(detalle, COLOR_TIPO)
 
 
 def fig_tipo_univ_torta(detalle: pd.DataFrame):
-    return _fig_torta_ultimo(detalle, "Egresados por tipo de universidad")
+    """Composición del último año por tipo de universidad, con los mismos
+    colores que la evolución (azul = Privado, naranja = Pública)."""
+    return _fig_torta_ultimo(detalle, COLOR_TIPO)
 
 
 # --------------------------------------------------------------------------
@@ -177,13 +237,16 @@ def tabla_nivel_academ(eg: pd.DataFrame) -> pd.DataFrame:
     return _detalle_categoria(eg, "NIVEL_ACADEM")
 
 
-def fig_nivel_base100(detalle: pd.DataFrame):
-    return _fig_base100(
-        detalle, "Egresados por nivel académico — evolución base 100")
+def fig_nivel_nivel(detalle: pd.DataFrame):
+    """Evolución de egresados por nivel académico, en niveles absolutos.
+
+    Grado y Posgrado van en ejes Y independientes por su diferencia de
+    escala (Grado ~5× Posgrado): así se lee la evolución de cada serie."""
+    return _fig_niveles_dual(detalle, COLOR_NIVEL)
 
 
 def fig_nivel_torta(detalle: pd.DataFrame):
-    return _fig_torta_ultimo(detalle, "Egresados por nivel académico")
+    return _fig_torta_ultimo(detalle, COLOR_NIVEL)
 
 
 def tabla_grado_por_mil(eg: pd.DataFrame, pop: pd.Series) -> pd.DataFrame:
@@ -271,28 +334,37 @@ def fig_top10_por_anio(detalle: pd.DataFrame, n: int = 10):
 
 
 def fig_top10_comparativo(detalle: pd.DataFrame, n: int = 10):
-    """Barras agrupadas: top-N del primer y del último año, comparados."""
-    a0, a1 = int(detalle["anio"].min()), int(detalle["anio"].max())
-    top0 = set(_top_n(detalle, a0, n)["disciplina"])
-    top1 = set(_top_n(detalle, a1, n)["disciplina"])
-    disc = sorted(top0 | top1)
+    """Barras agrupadas: top-N disciplinas del trienio inicial vs. el final.
 
-    piv = (detalle[detalle["disciplina"].isin(disc)]
-           .pivot_table(index="disciplina", columns="anio",
-                        values="egresados", fill_value=0))
-    piv = piv.sort_values(a1, ascending=True)
+    Compara la **suma** de egresados de los tres primeros años del período
+    con la de los tres últimos (con el archivo 2014-2023: 2014-2016 vs.
+    2021-2023). El top-N se toma de la unión de los más grandes de cada
+    trienio. Necesita al menos 3 años en la serie.
+    """
+    anios = sorted(detalle["anio"].unique())
+    if len(anios) < 3:
+        raise ValueError("fig_top10_comparativo necesita al menos 3 años")
+    p0, p1 = anios[:3], anios[-3:]
+    lbl0, lbl1 = f"{p0[0]}-{p0[-1]}", f"{p1[0]}-{p1[-1]}"
+    sum0 = (detalle[detalle["anio"].isin(p0)]
+            .groupby("disciplina")["egresados"].sum())
+    sum1 = (detalle[detalle["anio"].isin(p1)]
+            .groupby("disciplina")["egresados"].sum())
+    disc = sorted(set(sum0.nlargest(n).index) | set(sum1.nlargest(n).index))
+    piv = pd.DataFrame({lbl0: sum0, lbl1: sum1}).reindex(disc).fillna(0)
+    piv = piv.sort_values(lbl1, ascending=True)
 
     y = range(len(piv))
     h = 0.4
     fig, ax = plt.subplots(figsize=(9, max(4, 0.5 * len(piv))))
-    ax.barh([i + h / 2 for i in y], piv[a0], height=h, color=PALETA[0],
-            label=str(a0), edgecolor="white", linewidth=0.5)
-    ax.barh([i - h / 2 for i in y], piv[a1], height=h, color=PALETA[1],
-            label=str(a1), edgecolor="white", linewidth=0.5)
+    ax.barh([i + h / 2 for i in y], piv[lbl0], height=h, color=PALETA[0],
+            label=lbl0, edgecolor="white", linewidth=0.5)
+    ax.barh([i - h / 2 for i in y], piv[lbl1], height=h, color=PALETA[1],
+            label=lbl1, edgecolor="white", linewidth=0.5)
     ax.set_yticks(list(y))
     ax.set_yticklabels(["\n".join(textwrap.wrap(x, 24)) for x in piv.index],
                        fontsize=8)
-    ax.set_xlabel("Egresados")
+    ax.set_xlabel("Egresados (suma del trienio)")
     ax.legend(frameon=False, fontsize=9, loc="lower right")
     for sp in ("top", "right"):
         ax.spines[sp].set_visible(False)
@@ -427,9 +499,9 @@ def exportar_todo(path: Path = SPU_XLSX, dpi: int = DPI) -> Path:
     # Gráficos
     GRAFICOS_DIR.mkdir(parents=True, exist_ok=True)
     figs = {
-        "01_tipo_univ_base100": fig_tipo_univ_base100(t_tipo),
+        "01_tipo_univ_nivel": fig_tipo_univ_nivel(t_tipo),
         "02_tipo_univ_torta": fig_tipo_univ_torta(t_tipo),
-        "03_nivel_base100": fig_nivel_base100(t_nivel),
+        "03_nivel_academ_nivel": fig_nivel_nivel(t_nivel),
         "04_nivel_torta": fig_nivel_torta(t_nivel),
         "05_grado_por_mil": fig_grado_por_mil(t_grado_mil),
         "06_disciplinas_top10_por_anio": fig_top10_por_anio(t_disc),
