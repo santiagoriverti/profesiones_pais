@@ -123,12 +123,13 @@ def _estilo(ax):
 
 
 def _fig_niveles_barras(detalle: pd.DataFrame, colores: dict):
-    """Barras verticales agrupadas de egresados (**nivel absoluto**) por
-    categoría, **ambas en el mismo eje Y**. Un grupo de barras por año.
+    """Barras verticales agrupadas de egresados (**nivel absoluto, en miles**)
+    por categoría, **ambas en el mismo eje Y**. Un grupo de barras por año.
 
-    Sin título (el contexto va en el markdown del notebook); años en 45°.
-    ``colores`` mapea categoría → color. Las categorías se ordenan por
-    volumen descendente (la de más egresados a la izquierda de cada grupo).
+    Las alturas se dividen por 1.000 (eje en miles de egresados). Sin título
+    (el contexto va en el markdown del notebook); años en 45°. ``colores``
+    mapea categoría → color. Las categorías se ordenan por volumen descendente
+    (la de más egresados a la izquierda de cada grupo).
     """
     anios = sorted(detalle["anio"].unique())
     cats = list(detalle.groupby("categoria")["egresados"].sum()
@@ -142,10 +143,10 @@ def _fig_niveles_barras(detalle: pd.DataFrame, colores: dict):
     fig, ax = plt.subplots(figsize=(9, 4.6))
     for i, cat in enumerate(cats):
         offset = (i - (n - 1) / 2) * w
-        ax.bar([xi + offset for xi in x], piv[cat], width=w,
+        ax.bar([xi + offset for xi in x], piv[cat] / 1000, width=w,
                color=colores.get(cat, PALETA[i]), label=cat,
                edgecolor="white", linewidth=0.6)
-    ax.set_ylabel("Egresados")
+    ax.set_ylabel("Egresados (en miles)")
     ax.set_ylim(bottom=0)
     ax.set_xticks(x)
     ax.set_xticklabels(anios, rotation=45, ha="right")
