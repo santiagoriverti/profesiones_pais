@@ -73,12 +73,14 @@ editarlos a mano, se regeneran con sus scripts y se validan con nbclient:
   los residuales F0x0 cuentan por su prefijo (igual que el ratio), aunque
   sean `tipo=no_definido`.
 - NB01 (`src/argentina.py`): los gráficos 01 y 03 son **niveles absolutos**,
-  NO base 100 (la columna `base100` sigue en las tablas del Excel). `01_tipo_univ_nivel`
-  (Privado/Pública, mismo eje) y `03_nivel_academ_nivel` (Grado/Posgrado, doble
-  eje por escala ~5×) fueron **renombrados** (antes `*_base100`). Colores fijos
-  `COLOR_TIPO`/`COLOR_NIVEL` (azul/naranja) para que líneas y tortas coincidan.
-  `07_disciplinas_top10_comparativo` compara **suma de trienios** (primeros 3
-  años vs últimos 3: 2014-2016 vs 2021-2023), no primer vs último año.
+  NO base 100 (la columna `base100` sigue en las tablas del Excel). Son
+  **barras verticales agrupadas** por año, ambas categorías en el **mismo eje**
+  (`_fig_niveles_barras`): `01_tipo_univ_nivel` (Privado/Pública) y
+  `03_nivel_academ_nivel` (Grado/Posgrado). Fueron **renombrados** (antes
+  `*_base100`). Colores fijos `COLOR_TIPO`/`COLOR_NIVEL` (azul/naranja) para
+  que barras y tortas coincidan. `07_disciplinas_top10_comparativo` compara
+  **suma de trienios** (primeros 3 años vs últimos 3: 2014-2016 vs 2021-2023),
+  no primer vs último año.
 
 ## Estado y pendientes
 

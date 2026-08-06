@@ -91,8 +91,8 @@ df.head()"""))
 cells.append(md("""## 1. Tipo de universidad (Privado / Pública)
 
 Tabla de detalle (egresados, índice base 100 y participación por año),
-evolución **en niveles absolutos** (privadas y públicas en el mismo eje,
-que tienen escala parecida: **azul = Privado, naranja = Pública**) y
+egresados **en niveles absolutos** como **barras verticales agrupadas** por
+año (ambas en el mismo eje: **azul = Privado, naranja = Pública**) y
 composición del último año (mismos colores)."""))
 
 cells.append(code("""t_tipo = a.tabla_tipo_univ(eg)
@@ -102,10 +102,10 @@ a.fig_tipo_univ_torta(t_tipo); plt.show()"""))
 
 cells.append(md("""## 2. Nivel académico (Grado / Posgrado)
 
-Pregrado queda excluido. Tabla de detalle, evolución **en niveles absolutos**
-(Grado y Posgrado en **ejes Y independientes** por su diferencia de escala
-—Grado ~5× Posgrado—, cada serie con el color de su eje), torta del último
-año y —además— egresados de **Grado cada mil habitantes**."""))
+Pregrado queda excluido. Tabla de detalle, egresados **en niveles absolutos**
+como **barras verticales agrupadas** por año (Grado y Posgrado en el mismo
+eje: azul = Grado, naranja = Posgrado), torta del último año y —además—
+egresados de **Grado cada mil habitantes**."""))
 
 cells.append(code("""t_nivel = a.tabla_nivel_academ(eg)
 display(t_nivel)

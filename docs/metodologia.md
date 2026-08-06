@@ -209,17 +209,18 @@ egresados (≈ 1,10 millón) supera al del panel ISCED (≈ 1,09 millón).
 ### Análisis y gráficos
 
 **1. Tipo de universidad (Privado / Pública).** Tabla de detalle con egresados,
-índice base 100 y participación por año; gráfico de evolución **en niveles
-absolutos** (privadas y públicas en el mismo eje, escala parecida; **azul =
-Privado, naranja = Pública**) y torta de composición del último año con los
-mismos colores (`01_tipo_univ_nivel`, `02_tipo_univ_torta`).
+índice base 100 y participación por año; gráfico de egresados **en niveles
+absolutos** como **barras verticales agrupadas** por año (privadas y públicas
+en el mismo eje; **azul = Privado, naranja = Pública**) y torta de composición
+del último año con los mismos colores (`01_tipo_univ_nivel`,
+`02_tipo_univ_torta`).
 
 **2. Nivel académico (Grado / Posgrado).** Con Pregrado excluido. Tabla de
-detalle (base 100 y participación), evolución **en niveles absolutos** con
-**un eje Y por categoría** (Grado y Posgrado difieren ~5× en escala, así que
-cada serie va en su propio eje con el color de su eje; `03_nivel_academ_nivel`),
-torta del último año y **egresados de Grado cada mil habitantes** (barras por
-año, usando la población del Banco Mundial).
+detalle (base 100 y participación), egresados **en niveles absolutos** como
+**barras verticales agrupadas** por año (Grado y Posgrado en el **mismo eje**;
+azul = Grado, naranja = Posgrado; `03_nivel_academ_nivel`), torta del último
+año y **egresados de Grado cada mil habitantes** (barras por año, usando la
+población del Banco Mundial).
 
 **3. Disciplina específica (37 disciplinas).** Tabla de detalle sobre **todas**
 las disciplinas (egresados, participación y ranking dentro de cada año) y matriz

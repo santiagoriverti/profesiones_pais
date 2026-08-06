@@ -122,68 +122,35 @@ def _estilo(ax):
     ax.set_axisbelow(True)
 
 
-def _fig_niveles_single(detalle: pd.DataFrame, colores: dict):
-    """Líneas de egresados en **nivel absoluto** por categoría, mismo eje Y.
+def _fig_niveles_barras(detalle: pd.DataFrame, colores: dict):
+    """Barras verticales agrupadas de egresados (**nivel absoluto**) por
+    categoría, **ambas en el mismo eje Y**. Un grupo de barras por año.
 
-    Para categorías de escala parecida (p. ej. universidades privadas vs.
-    públicas). Sin título (el contexto va en el markdown del notebook);
-    años en 45°. ``colores`` mapea categoría → color.
+    Sin título (el contexto va en el markdown del notebook); años en 45°.
+    ``colores`` mapea categoría → color. Las categorías se ordenan por
+    volumen descendente (la de más egresados a la izquierda de cada grupo).
     """
-    fig, ax = plt.subplots(figsize=(9, 4.6))
     anios = sorted(detalle["anio"].unique())
-    for cat, sub in detalle.groupby("categoria"):
-        sub = sub.sort_values("anio")
-        color = colores.get(cat, PALETA[0])
-        ax.plot(sub["anio"], sub["egresados"], color=color, lw=2, label=cat,
-                marker="o", ms=3)
-        ax.annotate(cat, (sub["anio"].iloc[-1], sub["egresados"].iloc[-1]),
-                    xytext=(6, 0), textcoords="offset points", va="center",
-                    fontsize=9, color=color)
+    cats = list(detalle.groupby("categoria")["egresados"].sum()
+                .sort_values(ascending=False).index)
+    piv = (detalle.pivot_table(index="anio", columns="categoria",
+                               values="egresados", fill_value=0)
+           .reindex(anios))
+    x = list(range(len(anios)))
+    n = len(cats)
+    w = 0.8 / n
+    fig, ax = plt.subplots(figsize=(9, 4.6))
+    for i, cat in enumerate(cats):
+        offset = (i - (n - 1) / 2) * w
+        ax.bar([xi + offset for xi in x], piv[cat], width=w,
+               color=colores.get(cat, PALETA[i]), label=cat,
+               edgecolor="white", linewidth=0.6)
     ax.set_ylabel("Egresados")
     ax.set_ylim(bottom=0)
-    ax.set_xticks(anios)
+    ax.set_xticks(x)
     ax.set_xticklabels(anios, rotation=45, ha="right")
     ax.legend(frameon=False, fontsize=8, loc="upper left")
     _estilo(ax)
-    fig.tight_layout()
-    return fig
-
-
-def _fig_niveles_dual(detalle: pd.DataFrame, colores: dict):
-    """Líneas de egresados en **nivel absoluto** con un eje Y por categoría.
-
-    Para dos categorías de escala muy distinta (p. ej. Grado vs. Posgrado):
-    la de mayor volumen va al eje izquierdo y la otra al derecho, cada una
-    con el color de su eje. Los ejes son **independientes** (no comparables
-    en altura); sirven para leer la evolución de cada serie. Sin título;
-    años en 45°.
-    """
-    totales = (detalle.groupby("categoria")["egresados"].sum()
-               .sort_values(ascending=False))
-    cats = list(totales.index)
-    if len(cats) != 2:
-        raise ValueError("_fig_niveles_dual espera exactamente 2 categorías")
-    anios = sorted(detalle["anio"].unique())
-    fig, ax_izq = plt.subplots(figsize=(9, 4.6))
-    ax_der = ax_izq.twinx()
-    lineas = []
-    for eje, cat in zip((ax_izq, ax_der), cats):
-        sub = detalle[detalle["categoria"] == cat].sort_values("anio")
-        color = colores.get(cat, PALETA[0])
-        ln, = eje.plot(sub["anio"], sub["egresados"], color=color, lw=2,
-                       marker="o", ms=3, label=cat)
-        lineas.append(ln)
-        eje.set_ylabel(f"Egresados — {cat}", color=color)
-        eje.tick_params(axis="y", labelcolor=color)
-        eje.set_ylim(bottom=0)
-    ax_izq.set_xticks(anios)
-    ax_izq.set_xticklabels(anios, rotation=45, ha="right")
-    ax_izq.legend(lineas, [ln.get_label() for ln in lineas],
-                  frameon=False, fontsize=8, loc="upper left")
-    for eje in (ax_izq, ax_der):
-        eje.spines["top"].set_visible(False)
-    ax_izq.grid(True, axis="y", color="#e6e6e6", linewidth=0.7)
-    ax_izq.set_axisbelow(True)
     fig.tight_layout()
     return fig
 
@@ -219,9 +186,10 @@ def tabla_tipo_univ(eg: pd.DataFrame) -> pd.DataFrame:
 
 
 def fig_tipo_univ_nivel(detalle: pd.DataFrame):
-    """Evolución de egresados por tipo de universidad, en niveles absolutos
-    (privadas y públicas en el mismo eje: azul = Privado, naranja = Pública)."""
-    return _fig_niveles_single(detalle, COLOR_TIPO)
+    """Egresados por tipo de universidad en niveles absolutos: barras
+    verticales agrupadas por año, ambas en el mismo eje (azul = Privado,
+    naranja = Pública)."""
+    return _fig_niveles_barras(detalle, COLOR_TIPO)
 
 
 def fig_tipo_univ_torta(detalle: pd.DataFrame):
@@ -238,11 +206,10 @@ def tabla_nivel_academ(eg: pd.DataFrame) -> pd.DataFrame:
 
 
 def fig_nivel_nivel(detalle: pd.DataFrame):
-    """Evolución de egresados por nivel académico, en niveles absolutos.
-
-    Grado y Posgrado van en ejes Y independientes por su diferencia de
-    escala (Grado ~5× Posgrado): así se lee la evolución de cada serie."""
-    return _fig_niveles_dual(detalle, COLOR_NIVEL)
+    """Egresados por nivel académico en niveles absolutos: barras verticales
+    agrupadas por año, Grado y Posgrado en el mismo eje (azul = Grado,
+    naranja = Posgrado)."""
+    return _fig_niveles_barras(detalle, COLOR_NIVEL)
 
 
 def fig_nivel_torta(detalle: pd.DataFrame):

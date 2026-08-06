@@ -42,12 +42,13 @@ Dos entregables, cada uno con su notebook Colab:
   y `..._arg()`.
 - **Notebook 01 — gráficos** (`src/argentina.py`):
   - `01_tipo_univ_nivel` (ex `01_tipo_univ_base100`): niveles absolutos, no
-    base 100; Privado y Pública en el mismo eje. **Renombrado** el archivo.
+    base 100; **barras verticales agrupadas** (Privado y Pública en el mismo
+    eje). **Renombrado** el archivo.
   - `02_tipo_univ_torta`: color fijo **azul = Privado, naranja = Pública**
     (coincide con el gráfico 01).
-  - `03_nivel_academ_nivel` (ex `03_nivel_base100`): niveles absolutos con
-    **doble eje** (Grado izq., Posgrado der.) por su diferencia de escala
-    ~5×. **Renombrado** el archivo.
+  - `03_nivel_academ_nivel` (ex `03_nivel_base100`): niveles absolutos,
+    **barras verticales agrupadas** (Grado y Posgrado en el **mismo eje**).
+    **Renombrado** el archivo.
   - `07_disciplinas_top10_comparativo`: suma del **trienio 2014-2016** vs.
     suma del **trienio 2021-2023** (antes 2014 vs 2023).
 

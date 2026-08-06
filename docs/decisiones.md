@@ -65,13 +65,16 @@ documentación al Excel y reestiliza cuatro gráficos del notebook 01.
   `build_panel.clasificacion_orientacion_arg()` / `_eur()`; grupos broad
   importados de `report.BROAD_HUMANIDADES` / `BROAD_DURAS` (fuente única).
 - **Gráficos del notebook 01** (`src/argentina.py`):
-  - `01`/`03` pasan de **base 100 a niveles absolutos** (egresados). Tipo de
-    universidad (Privado ~34-47k / Pública ~51-80k, ratio ~2,3×) va en el
-    **mismo eje**; nivel académico (Grado ~80-107k / Posgrado ~13-21k, ratio
-    ~5×) va con **doble eje** (una serie por eje, cada una con su color).
-    Archivos **renombrados**: `01_tipo_univ_base100`→`01_tipo_univ_nivel`,
+  - `01`/`03` pasan de **base 100 a niveles absolutos** (egresados), como
+    **barras verticales agrupadas** por año con **ambas categorías en el
+    mismo eje** (helper único `_fig_niveles_barras`): tipo de universidad
+    (Privado ~34-47k / Pública ~51-80k) y nivel académico (Grado ~80-107k /
+    Posgrado ~13-21k; en el mismo eje el Posgrado queda bajo pero visible, es
+    lo pedido). Archivos **renombrados**:
+    `01_tipo_univ_base100`→`01_tipo_univ_nivel`,
     `03_nivel_base100`→`03_nivel_academ_nivel`. La columna `base100` sigue en
-    las tablas del Excel.
+    las tablas del Excel. (Una primera versión usó líneas —01 mismo eje, 03
+    doble eje—; se reemplazó por barras verticales de mismo eje a pedido.)
   - `02_tipo_univ_torta`: **color fijo azul = Privado, naranja = Pública**
     (mapas `COLOR_TIPO`/`COLOR_NIVEL`), coincide con el gráfico 01.
   - `07_disciplinas_top10_comparativo`: compara la **suma del trienio inicial
